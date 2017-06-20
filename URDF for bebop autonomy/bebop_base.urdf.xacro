@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!-- Kinematic model, simplified visual, no collisions -->
+<robot name="bebop" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:property name="PI" value="3.1415926535897931" />
+ <!-- <xacro:property name="camera_offset_len" value="0.1" />
+  <xacro:property name="camera_offset_ver" value="0.0" />-->
+  <!-- +- 35 degrees -->
+  <xacro:property name="pan_range" value="0.610865" />
+  <xacro:property name="pan_vel" value="2.0" />
+  <!-- +- 35 degrees -->
+  <xacro:property name="tilt_range" value="0.610865" />
+  <xacro:property name="tilt_vel" value="2.0" />
+  <xacro:property name="joint_effort" value="50" />
+
+  <link name="base_link">
+   <visual>
+   <origin rpy="0 0 1.57075" xyz="0 0 0"/>
+      <geometry>
+        <mesh scale=".001 .001 .001" filename="package://bebop_description/meshes/bebop_model.stl"/>
+      </geometry>
+   </visual>
+<collision>
+      <origin rpy="0 0 1.57075" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://bebop_description/meshes/bebop_model.stl"/>
+      </geometry>
+    </collision>
+  </link>
+<link name="innertia_link">
+    <inertial>
+      <mass value="0.420"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.01152" ixy="0.0" ixz="0.0" iyy="0.01152" iyz="0.0" izz="0.0218"/>
+    </inertial>
+  </link>
+  <link name="camera_base_link"></link>
+  <link name="camera_pan_link"></link>
+  <link name="camera_tilt_link"></link>
+  <link name="camera_optical"></link>
+
+  <joint name="base_link_joint" type="fixed">
+    <origin xyz="0.1 0.0 0.0" rpy="0 0 0" />
+    <parent link="base_link"/>
+    <child link="camera_base_link" />
+  </joint>
+
+  <joint name="camera_pan_joint" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="camera_base_link" />
+    <child link="camera_pan_link" />
+    <axis xyz="0 0 1" />
+    <limit lower="-0.610865" upper="0.610865"
+      effort="50" velocity="2" />
+  </joint>
+
+  <joint name="camera_tilt_joint" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="camera_pan_link" />
+    <child link="camera_tilt_link" />
+    <axis xyz="0 1 0" />
+    <limit lower="-0.610865" upper="0.610865"
+      effort="50" velocity="2" />
+  </joint>
+
+  <joint name="camera_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.57079632679 0 -1.57079632679" />
+    <parent link="camera_tilt_link" />
+    <child link="camera_optical" />
+  </joint>
+
+  <joint name="innertia_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="innertia_link"/>
+  </joint>
+<joint name="camera_depth_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.0 -0.02 0.0"/>
+    <parent link="camera_base_link"/>
+    <child link="camera_depth_frame"/>
+  </joint>
+  <link name="camera_depth_frame"/>
+  <joint name="camera_depth_optical_joint" type="fixed">
+    <origin rpy="-1.57079632679 0.0 -1.57079632679" xyz="0 0 0"/>
+    <parent link="camera_depth_frame"/>
+    <child link="camera_depth_optical_frame"/>
+  </joint>
+  <link name="camera_depth_optical_frame"/>
+  <joint name="camera_rgb_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.0 -0.0125 0.0"/>
+    <parent link="camera_base_link"/>
+    <child link="camera_rgb_frame"/>
+  </joint>
+  <link name="camera_rgb_frame"/>
+  <joint name="camera_rgb_optical_joint" type="fixed">
+    <origin rpy="-1.57079632679 0.0 -1.57079632679" xyz="0 0 0"/>
+    <parent link="camera_rgb_frame"/>
+    <child link="camera_rgb_optical_frame"/>
+  </joint>
+  <link name="camera_rgb_optical_frame"/>
+
+  <!-- [nice to have] 
+  <xacro:include filename="bebop.gazebo" />-->
+</robot>
