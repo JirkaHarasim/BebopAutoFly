@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+
+
+ <launch>
+   <arg name="model" default="$(find bebop_description)/urdf/bebop_base_kinect.urdf.xacro"/>
+   <!--<arg name="model" default="$(find hector_quadrotor_urdf)/urdf/quadrotor.urdf.xacro"/>-->
+   <param name="robot_description" command="cat '$(arg model)'" />
+   
+   <!-- push robot_description to factory and spawn robot in gazebo -x -4.0
+   -y 0.0 -->
+   <node name="spawn_robot" pkg="gazebo_ros" type="spawn_model"
+   args="-param robot_description
+   -urdf
+   -z 0.3
+   -model quadrotor"
+     respawn="false" output="screen"/>
+
+<node pkg="testing" type="frodopathy" name="frodopathy"
+	args="/ground_truth/state /frodopathy"/>
+     
+<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ></node>
+
+   <!-- start robot state publisher -->
+   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen" >
+     <param name="publish_frequency" type="double" value="50.0" />
+     <param name="tf_prefix" type="string" value="" />
+   </node>
+
+   <arg name="use_ground_truth_for_tf" default="true" />
+   <node name="ground_truth_to_tf" pkg="message_to_tf" type="message_to_tf" output="screen">
+     <param name="odometry_topic" value="ground_truth/state" />
+     <!--<param name="frame_id" value="/odom_combined" />-->
+     <param name="frame_id" value="/odom" />
+     <param name="tf_prefix" value="" if="$(arg use_ground_truth_for_tf)" />
+     <param name="tf_prefix" value="ground_truth" unless="$(arg use_ground_truth_for_tf)" />
+   </node>
+
+   <node pkg="testing" type="cmdvelrepeater" name="cmdvelrepeater"
+	args="/cmd_vel_to_repeat /yocs_cmd_vel_mux/repeater/cmd_vel" />
+
+   <!-- node name="hector_pose_estimation" pkg="hector_pose_estimation" type="hector_pose_estimation_node" output="screen"/-->
+
+   <group ns="yocs_cmd_vel_mux">
+   <include file="$(find testing)/launch/joy_teleop_sim.launch"/>
+   </group>
+
+   <include file="$(find yocs_cmd_vel_mux)/launch/standalone.launch"/>
+
+  <node pkg="topic_tools" type="relay" name="cmd_vel_relay"
+	args="/yocs_cmd_vel_mux/cmd_vel /cmd_vel" />
+
+ <!--   <node pkg="testing" type="cmdvellimiter" name="cmd_vel_limiter"
+	args="/yocs_cmd_vel_mux/cmd_vel /cmd_vel" /> -->   
+
+   <arg name="motors" default="robbe_2827-34_epp1045" />
+   <rosparam command="load" ns="gazebo" file="$(find autonomous_quadrotor)/param/quadrotor_aerodynamics.yaml" />
+   <rosparam command="load" ns="gazebo" file="$(find autonomous_quadrotor)/param/$(arg motors).yaml" />
+ </launch>
+   

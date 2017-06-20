@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<launch>
+   <param name="use_sim_time" value="true" />
+   <arg name="bag" />
+
+   <node pkg="rosbag" type="play" name="rosbag_play"
+       args="--clock --pause $(arg bag)" output="screen"/>
+
+<node pkg="testing" type="frodopathy" name="frodopathy"
+	args="/bebop/odom /bebop/frodopathy"/>
+
+<node pkg="testing" type="frodopathy" name="frodopathy_dso"
+	args="/dso_odom /dso/frodopathy"/>
+
+<node pkg="testing" type="frodopathy" name="frodopathy_dso_transformed"
+	args="/dso_transformed /dso_transformed/frodopathy"/>
+
+<!--<node pkg="testing" type="frodopathy" name="frodopathy_ekf"
+	args="/ekf/odometry /ekf/frodopathy"/>
+
+<node pkg="testing" type="frodopathy" name="frodopathy_ukf"
+	args="/ukf/odometry /ukf/frodopathy"/>
+
+  <include file="$(find robot_localization)/launch/ekf_bebop.launch" />
+  <include file="$(find robot_localization)/launch/ukf_bebop.launch" /> -->
+
+<!--<node pkg="testing" type="ultimetry" name="ultimetry" output="screen"/>
+
+<node pkg="testing" type="eigenserviceprovider" name="service"/>
+
+<node pkg="testing" type="frodopathy" name="frodopathy_tftodo"
+	args="/tftodo/odom /tftodo/frodopathy"/>
+
+<node pkg="testing" type="tftodo" name="tftodo" output="screen"
+	args="odom dso_transformed tftodo/odom"/>
+
+<node pkg="testing" type="frodopathy" name="frodopathy_tftodo2"
+	args="/tftodo/odom2 /tftodo/frodopathy2"/>
+
+<node pkg="testing" type="tftodo" name="tftodo2" output="screen"
+	args="odom dso_transformed_two tftodo/odom2"/>
+
+<node pkg="testing" type="frodopathy" name="frodopathy_tftodo"
+	args="/tftodo/odom /tftodo/frodopathy"/>
+
+<node pkg="testing" type="frodopathy" name="frodopathy_tftodo2"
+	args="/tftodo/odom2 /tftodo/frodopathy2"/>
+
+<node pkg="testing" type="tftodo" name="tftodo" output="screen"
+	args="odom dso_transformed tftodo/odom"/>
+
+<node pkg="testing" type="tftodo" name="tftodo2" output="screen"
+	args="odom dso_transformed_two tftodo/odom2"/>-->
+  
+<node pkg="topic_tools" type="relay" name="pointcloud_relay"
+	args="/pcl /camera/depth/points" />
+
+
+<node pkg="dso_ros" type="dso_node" name="dso_ros" 
+		args="image:=/bebop/image_raw calib=/home/harasim/catkin_ws/runtime/calibration_recordings/calibration/camera.txt">
+        <param name="debug" type="bool" value="true"/>
+        <param name="display_GUI" type="bool" value="false"/>
+
+        <param name="calib_file_path" type="string" value="/home/harasim/catkin_ws/runtime/calibration_recordings/calibration/camera.txt"/>
+        <param name="vignette_file_path" type="string" value=""/>
+        <param name="gamma_file_path" type="string" value=""/>
+
+        <param name="dso_frame_id" type="string" value="dso_odom"/>
+        <param name="odom_frame_id" type="string" value="odom"/>
+        <param name="base_frame_id" type="string" value="base_link"/>
+        <param name="camera_frame_id" type="string" value="base_link"/>
+    </node>       
+
+
+  <include file="$(find bebop_model)/launch/realBebopCommon.launch" />
+
+  <include file="$(find robot_localization)/launch/ekf_bebop.launch" />
+
+<node pkg="testing" type="frodopathy" name="frodopathy_ekf"
+	args="/ekf/odometry /ekf/frodopathy"/>
+
+<node pkg="testing" type="transodom" name="transodom" output="screen"
+	args="/ekf/odometry /dso_transformed"/>
+
+  <node pkg="action_controller" type="action_controller" name="action_controller" respawn="true"/>
+</launch>

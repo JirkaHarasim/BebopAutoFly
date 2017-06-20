@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: bebop_description
+    relative_path: urdf/bebop_base_kinect.urdf.xacro
+  SRDF:
+    relative_path: config/bebop.srdf
+  CONFIG:
+    author_name: jiri harasim
+    author_email: jiri.harasim@gmail.com
+    generated_timestamp: 1497044331
