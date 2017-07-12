@@ -1,6 +1,9 @@
 sensors: 
  - sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
    point_cloud_topic: /camera/depth/points
-   max_range: 15.0
+   max_range: 7.5
    point_subsample: 1
-   filtered_cloud_topic: octocloud
+   prob_hit: 0.65
+   prob_miss: 0.25
+   disable_model_filtering: 1
+
