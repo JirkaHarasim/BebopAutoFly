@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+
+<param name="simple_controller_rotation" value="3.0" type="double"/>
+<param name="simple_controller_movement" value="0.4" type="double"/>
+
+<node pkg="action_controller" type="action_controller" name="action_controller" respawn="true" output="screen"/> 
+
+</launch>
