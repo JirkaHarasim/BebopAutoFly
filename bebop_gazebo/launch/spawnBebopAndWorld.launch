@@ -5,8 +5,8 @@
 
 	<arg name="use_ground_truth_for_tf" default="true" />
   <include file="$(find hector_gazebo_worlds)/launch/start.launch">
-	<arg name="world" value="$(find hector_gazebo_worlds)/worlds/small_indoor_scenario.world"/> 
-   <!--	<arg name="world" value="$(find quad_gazebo)/worlds/kitchen.world"/> -->
+<!--	<arg name="world" value="$(find hector_gazebo_worlds)/worlds/small_indoor_scenario.world"/> -->
+   <arg name="world" value="$(find quad_gazebo)/worlds/kitchen.world"/> 
   </include>
 
 <!--   <include file="$(find autonomous_quadrotor)/launch/MySpawn_quadrotor.launch" >
@@ -16,9 +16,8 @@
 
     <include file="$(find bebop_gazebo)/launch/spawnBebop.launch" >   
      <arg name="use_ground_truth_for_tf" value="$(arg use_ground_truth_for_tf)" />
+     <arg name="spawn_with_kinect" value="true"/>
    </include> 
-
-<!--	 <node pkg="action_controller" type="action_controller" name="action_controller" respawn="true"/>-->
 
  </launch>
  

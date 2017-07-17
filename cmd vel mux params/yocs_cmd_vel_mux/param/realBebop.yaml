@@ -14,12 +14,12 @@
 
 subscribers:
   - name:        "Joystick"
-    topic:       "bebop/cmd_vel"
+    topic:       "limited/cmd_vel"
     timeout:     0.1
     priority:    0
     short_desc:  "XBoxOne controller."
   - name:        "Action Controller"
-    topic:       "repeater/cmd_vel"
+    topic:       "adjustor/cmd_vel"
     timeout:     1
     priority:    1
     short_desc:  "Controller used for planner."

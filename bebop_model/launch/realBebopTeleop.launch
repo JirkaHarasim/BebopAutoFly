@@ -24,9 +24,11 @@
         <include file="$(find bebop_description)/launch/description.launch" />
     </group>
 
-    <!--needed to continuously publish the command to move the drone from the simple controller-->
-   <node pkg="testing" type="cmdvelrepeater" name="cmdvelrepeater"
-	args="/cmd_vel_to_repeat /yocs_cmd_vel_mux/repeater/cmd_vel" />
+   <param name="cmd_vel_limit" value="0.3" type="double"/>
+   <param name="cmd_vel_rot_limit" value="0.3" type="double"/>
+   <param name="compensation_x" value="-0.02" type="double"/>
+   <param name="compensation_y" value="-0.07" type="double"/>
+   <param name="compensation_rot" value="-0.01" type="double"/>
 
    <group ns="yocs_cmd_vel_mux">
    <include file="$(find testing)/launch/joy_teleop_real.launch"/>
@@ -34,16 +36,11 @@
 
    <include file="$(find yocs_cmd_vel_mux)/launch/realStandalone.launch"/>
 
-   <param name="cmd_vel_limit" value="0.3" type="double"/>
-  <!-- <param name="compensationX" value="-0.02" type="double"/>-->
-   <param name="proclivity_y" value="-0.07" type="double"/>
-
-
    <node pkg="testing" type="cmdvellimiter" name="cmd_vel_limiter"
-	args="/yocs_cmd_vel_mux/cmd_vel /limiter/cmd_vel" />
+	args="/yocs_cmd_vel_mux/bebop/cmd_vel /yocs_cmd_vel_mux/limited/cmd_vel" />
 
-   <node pkg="testing" type="cmdvelcompensator" name="cmd_vel_compensator"
-	args="/limiter/cmd_vel /bebop/cmd_vel" />
+   <node pkg="topic_tools" type="relay" name="cmdvel_relay"
+	args="/yocs_cmd_vel_mux/cmd_vel /bebop/cmd_vel" />
 
    <node pkg="topic_tools" type="relay" name="land_relay"
 	args="/yocs_cmd_vel_mux/bebop/land /bebop/land" />

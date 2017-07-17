@@ -2,7 +2,9 @@
 
 
  <launch>
-   <arg name="model" default="$(find bebop_description)/urdf/bebop_base_kinect.urdf.xacro"/>
+   <arg name="spawn_with_kinect" default="true"/>
+   <arg name="model" value="$(find bebop_description)/urdf/bebop_base_kinect.urdf.xacro" if="$(arg spawn_with_kinect)"/>
+   <arg name="model" value="$(find bebop_description)/urdf/bebop_base.urdf.xacro" unless="$(arg spawn_with_kinect)"/>
    <!--<arg name="model" default="$(find hector_quadrotor_urdf)/urdf/quadrotor.urdf.xacro"/>-->
    <param name="robot_description" command="cat '$(arg model)'" />
    
@@ -51,14 +53,9 @@
    <param name="compensationY" value="-0.07" type="double"/>-->
 
 
-   <node pkg="testing" type="cmdvellimiter" name="cmd_vel_limiter"
-	args="/yocs_cmd_vel_mux/cmd_vel /limiter/cmd_vel" />
-
-   <node pkg="testing" type="cmdvelcompensator" name="cmd_vel_compensator"
-	args="/limiter/cmd_vel /cmd_vel" />
-
- <!--   <node pkg="testing" type="cmdvellimiter" name="cmd_vel_limiter"
-	args="/yocs_cmd_vel_mux/cmd_vel /cmd_vel" /> -->   
+ <!--   <node pkg="testing" type="cmdveladjustor" name="cmd_vel_adjustor" output="screen"
+	args="/yocs_cmd_vel_mux/cmd_vel /cmd_vel" />
+   -->   
 
    <arg name="motors" default="robbe_2827-34_epp1045" />
    <rosparam command="load" ns="gazebo" file="$(find autonomous_quadrotor)/param/quadrotor_aerodynamics.yaml" />

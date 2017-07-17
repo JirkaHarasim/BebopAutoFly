@@ -3,9 +3,58 @@
  # The planning and execution components of MoveIt! configured to 
  # publish the current configuration of the robot (simulated or real)
  # and the current state of the world as seen by the planner
+<arg name="use_ground_truth_for_tf" default="true"/>
  <include file="$(find bebop_gazebo)/launch/move_group.launch">
   <arg name="publish_monitored_planning_scene" value="true" />
  </include>
  # The visualization component of MoveIt!
  <include file="$(find bebop_gazebo)/launch/moveit_rviz.launch"/>
+
+<node pkg="testing" type="frodopathy" name="frodopathy_dso"
+	args="/dso_odom /dso/frodopathy"/>
+
+<node pkg="topic_tools" type="relay" name="pointcloud_relay"
+	args="/pcl /camera/depth/points" />
+
+  <include file="$(find robot_localization)/launch/smooth_dso.launch" />
+
+<node pkg="testing" type="frodopathy" name="frodopathy_dso_smooth"
+	args="/ekf/dso_smooth /dso_smooth/frodopathy"/>
+
+<node pkg="testing" type="transodom" name="transodom" output="screen"
+	args="/ekf/dso_smooth /dso_transformed"/>
+
+<node pkg="testing" type="frodopathy" name="frodopathy_dso_transformed"
+	args="/dso_transformed /dso_transformed/frodopathy"/>
+
+  <include file="$(find robot_localization)/launch/ukf_bebop.launch" />
+
+<node pkg="testing" type="frodopathy" name="frodopathy_odom_combined"
+	args="/ukf/odometry /ukf/frodopathy"/>
+
+  <param name="dso_base_tr_x_translation" value="0" type="double"/>
+   <param name="dso_base_tr_y_translation" value="0" type="double"/>
+   <param name="dso_base_tr_z_translation" value="0" type="double"/>
+   <param name="dso_base_tr_x_rotation" value="0.2" type="double"/>
+   <param name="dso_base_tr_y_rotation" value="1.6" type="double"/>
+   <param name="dso_base_tr_z_rotation" value="0.2" type="double"/>
+   <param name="dso_base_tr_x_scale" value="8" type="double"/>
+   <param name="dso_base_tr_y_scale" value="6" type="double"/>
+   <param name="dso_base_tr_z_scale" value="2" type="double"/>
+
+<node pkg="dso_ros" type="dso_node" name="dso_ros" output="screen" 
+	args="image:=/bebop/image_raw calib=/home/harasim/catkin_ws/runtime/calibration_recordings/calibration/camera.txt">
+
+        <param name="debug" type="bool" value="true"/>
+        <param name="display_GUI" type="bool" value="false"/>
+
+        <param name="calib_file_path" type="string" value="/home/harasim/catkin_ws/runtime/calibration_recordings/calibration/camera.txt"/>
+        <param name="vignette_file_path" type="string" value=""/>
+        <param name="gamma_file_path" type="string" value=""/>
+
+        <param name="dso_frame_id" type="string" value="dso_odom"/>
+        <param name="odom_frame_id" type="string" value="odom"/>
+        <param name="base_frame_id" type="string" value="base_link"/>
+        <param name="camera_frame_id" type="string" value="base_link"/>
+    </node>   
 </launch>
