@@ -10,7 +10,7 @@
  # The visualization component of MoveIt!
  <include file="$(find bebop_gazebo)/launch/moveit_rviz.launch"/>
 
-<node pkg="testing" type="frodopathy" name="frodopathy_dso"
+<!--<node pkg="testing" type="frodopathy" name="frodopathy_dso"
 	args="/dso_odom /dso/frodopathy"/>
 
 <node pkg="topic_tools" type="relay" name="pointcloud_relay"
@@ -56,5 +56,5 @@
         <param name="odom_frame_id" type="string" value="odom"/>
         <param name="base_frame_id" type="string" value="base_link"/>
         <param name="camera_frame_id" type="string" value="base_link"/>
-    </node>   
+    </node>   -->
 </launch>
