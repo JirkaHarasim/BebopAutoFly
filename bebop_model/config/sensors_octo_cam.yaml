@@ -3,7 +3,7 @@ sensors:
    point_cloud_topic: /camera/depth/points
    max_range: 7.5
    point_subsample: 1
-   prob_hit: 0.65
-   prob_miss: 0.25
+   prob_hit: 0.60
+   prob_miss: 0.30
    disable_model_filtering: 1
 

@@ -47,6 +47,6 @@
 
   <include file="$(find bebop_model)/launch/realBebopCommon.launch" />
 
-  <include file="$(find action_controller)/launch/actionController.launch" />
+<!--  <include file="$(find action_controller)/launch/actionController.launch" /> -->
 
 </launch>
