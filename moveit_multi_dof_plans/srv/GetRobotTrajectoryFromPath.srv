@@ -1,0 +1,4 @@
+nav_msgs/Path path
+string[] joint_names
+---
+moveit_msgs/RobotTrajectory trajectory

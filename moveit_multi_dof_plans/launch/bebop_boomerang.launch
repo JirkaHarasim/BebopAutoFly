@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+
+ <param name="planning_group" value="Bebop" type="str"/> <!--BebopAndKinect-->
+  <node name="boomerang" pkg="testing" type="boomerang" respawn="false" output="screen"/>
+  
+</launch>

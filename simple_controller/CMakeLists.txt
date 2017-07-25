@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(action_controller)
+project(simple_controller)
 
 if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -52,11 +52,19 @@ catkin_package(
 
 include_directories(include)
 
-# add_library(action_controller src/actionController.cpp)
-add_executable(action_controller src/actionController.cpp)
-target_link_libraries(action_controller ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+add_executable(simple_controller src/actionController.cpp)
+add_executable(cmd_vel_repeater src/cmdvelrepeater.cpp)
+add_executable(cmd_vel_adjustor src/cmdveladjustor.cpp)
+add_executable(cmd_vel_limiter src/cmdvellimiter.cpp)
 
+target_link_libraries(simple_controller ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(cmd_vel_repeater ${catkin_LIBRARIES})
+target_link_libraries(cmd_vel_adjustor ${catkin_LIBRARIES})
+target_link_libraries(cmd_vel_limiter ${catkin_LIBRARIES})
 
-#install(TARGETS action_controller LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+add_dependencies(cmd_vel_repeater cmdvelrepeater_gencpp)
+add_dependencies(cmd_vel_adjustor cmdveladjustor_gencpp)
+add_dependencies(cmd_vel_limiter cmdvellimiter_gencpp)
+
 
 
