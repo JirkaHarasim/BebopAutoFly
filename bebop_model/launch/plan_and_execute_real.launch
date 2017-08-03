@@ -9,10 +9,10 @@
  # The visualization component of MoveIt!
  <include file="$(find bebop_model)/launch/moveit_rviz.launch"/>
 
-<node pkg="testing" type="frodopathy" name="frodopathy"
+<node pkg="moveit_multi_dof_plans" type="frodopathy" name="frodopathy"
 	args="/bebop/odom /bebop/frodopathy"/>
 
-<node pkg="testing" type="frodopathy" name="frodopathy_dso"
+<node pkg="moveit_multi_dof_plans" type="frodopathy" name="frodopathy_dso"
 	args="/dso_odom /dso/frodopathy"/>
 
 <node pkg="topic_tools" type="relay" name="pointcloud_relay"
@@ -20,20 +20,20 @@
 
   <include file="$(find robot_localization)/launch/smooth_dso.launch" />
 
-<node pkg="testing" type="frodopathy" name="frodopathy_dso_smooth"
+<node pkg="moveit_multi_dof_plans" type="frodopathy" name="frodopathy_dso_smooth"
 	args="/ekf/dso_smooth /dso_smooth/frodopathy"/>
 
 <node pkg="testing" type="transodom" name="transodom"
 	args="/ekf/dso_smooth /dso_transformed"/>
 
-<node pkg="testing" type="frodopathy" name="frodopathy_dso_transformed"
+<node pkg="moveit_multi_dof_plans" type="frodopathy" name="frodopathy_dso_transformed"
 	args="/dso_transformed /dso_transformed/frodopathy"/> 
 
   <include file="$(find robot_localization)/launch/ukf_bebop.launch" />
 
 <!-- <include file="$(find robot_localization)/launch/combine_bebop.launch" /> -->
 
-<node pkg="testing" type="frodopathy" name="frodopathy_odom_combined"
+<node pkg="moveit_multi_dof_plans" type="frodopathy" name="frodopathy_odom_combined"
 	args="/ukf/odometry /ukf/frodopathy"/> 
 
  <!-- controller runs separately to clearly see what is happening there. 

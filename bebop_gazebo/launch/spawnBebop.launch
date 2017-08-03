@@ -37,7 +37,7 @@
      <param name="tf_prefix" value="ground_truth" unless="$(arg use_ground_truth_for_tf)" />
    </node>
 
-   <node pkg="testing" type="cmdvelrepeater" name="cmdvelrepeater"
+   <node pkg="simple_controller" type="cmd_vel_repeater" name="cmdvelrepeater"
 	args="/cmd_vel_to_repeat /yocs_cmd_vel_mux/repeater/cmd_vel" />
 
    <node pkg="topic_tools" type="relay" name="cmdvel_relay"

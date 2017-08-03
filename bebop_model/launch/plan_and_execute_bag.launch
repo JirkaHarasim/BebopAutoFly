@@ -9,6 +9,6 @@
  # The visualization component of MoveIt!
  <include file="$(find bebop_model)/launch/moveit_rviz.launch"/>  
 
-<node pkg="testing" type="frodopathy" name="frodopathy"
+<node pkg="moveit_multi_dof_plans" type="frodopathy" name="frodopathy"
 	args="/bebop/odom /bebop/frodopathy"/>
 </launch>
