@@ -1,9 +1,12 @@
 <?xml version="1.0"?>
 <launch>
-   <param name="plan_variant" value="2" type="int"/>
+   <param name="plan_variant" value="1" type="int"/>
+ <param name="planning_group" value="BebopAndKinect" type="str"/> <!--BebopAndKinect;;Bebop-->
 
-  <node name="backandforth" pkg="testing" type="backandforth" respawn="false" output="screen">
+  <node name="backandforth" pkg="moveit_multi_dof_plans" type="backandforth" respawn="false" output="screen">
   </node>
 
-<node pkg="testing" type="robottrajectory" name="path_to_trajectory" output="screen"/>
+<node pkg="moveit_multi_dof_plans" type="robottrajectory" name="path_to_trajectory" output="screen"/>
+<node pkg="moveit_multi_dof_plans" type="trajectorytransformer" name="trajectory_transformer" output="screen"/>
+
 </launch>

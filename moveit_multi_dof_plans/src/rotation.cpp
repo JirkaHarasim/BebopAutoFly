@@ -51,7 +51,7 @@
 #include "moveit/robot_state/conversions.h"
 #include "trajectory_msgs/MultiDOFJointTrajectory.h"
 #include "trajectory_msgs/MultiDOFJointTrajectoryPoint.h"
-#include "testing/GetRobotTrajectoryFromPath.h"
+#include "moveit_multi_dof_plans/GetRobotTrajectoryFromPath.h"
 
 int main(int argc, char **argv)
 {
@@ -92,9 +92,9 @@ for (int i = 0; i < 2; i++)
   plan.start_state_ = robotStateMsg;
   displayTrajectory.trajectory_start = robotStateMsg;
 
-  testing::GetRobotTrajectoryFromPath trajectoryFromPath;
+  moveit_multi_dof_plans::GetRobotTrajectoryFromPath trajectoryFromPath;
 ros::ServiceClient trajectoryClient = 
-          node_handle.serviceClient<testing::GetRobotTrajectoryFromPath>("get_robot_trajectory_from_path");
+          node_handle.serviceClient<moveit_multi_dof_plans::GetRobotTrajectoryFromPath>("get_robot_trajectory_from_path");
     ROS_INFO("Calling path to robot trajectory service.");
 
 

@@ -51,7 +51,10 @@
 #include "moveit/robot_state/conversions.h"
 #include "trajectory_msgs/MultiDOFJointTrajectory.h"
 #include "trajectory_msgs/MultiDOFJointTrajectoryPoint.h"
-#include "testing/GetRobotTrajectoryFromPath.h"
+
+#include "moveit_multi_dof_plans/GetRobotTrajectoryFromPath.h"
+#include "moveit_multi_dof_plans/TransformTrajectory.h"
+#include "moveit_multi_dof_plans/InverseTransformTrajectory.h"
 
 int main(int argc, char **argv)
 {
@@ -60,6 +63,9 @@ int main(int argc, char **argv)
 
   int planVariant;
   node_handle.param<int>("plan_variant", planVariant, 0);
+
+   std::string planningGroupName;
+    node_handle.param<std::string>("planning_group", planningGroupName, "Bebop");//AndKinect
 
   if (planVariant < 1 || planVariant > 4)
   {
@@ -70,9 +76,7 @@ int main(int argc, char **argv)
   ros::AsyncSpinner spinner(1);
   spinner.start();
 
-  static const std::string PLANNING_GROUP = "Bebop";//AndKinect
-
-  moveit::planning_interface::MoveGroupInterface move_group(PLANNING_GROUP);
+  moveit::planning_interface::MoveGroupInterface move_group(planningGroupName);
 
   namespace rvt = rviz_visual_tools;
   moveit_visual_tools::MoveItVisualTools visual_tools("odom");
@@ -99,12 +103,13 @@ int main(int argc, char **argv)
   plan.start_state_ = robotStateMsg;
   displayTrajectory.trajectory_start = robotStateMsg;
 
-  testing::GetRobotTrajectoryFromPath trajectoryFromPath;
+  moveit_multi_dof_plans::GetRobotTrajectoryFromPath trajectoryFromPath;
 ros::ServiceClient trajectoryClient = 
-          node_handle.serviceClient<testing::GetRobotTrajectoryFromPath>("get_robot_trajectory_from_path");
-    ROS_INFO("Calling path to robot trajectory service.");
+          node_handle.serviceClient<moveit_multi_dof_plans::GetRobotTrajectoryFromPath>("get_robot_trajectory_from_path");
 
-
+  moveit_multi_dof_plans::TransformTrajectory transformTrajectory;
+ros::ServiceClient trajectoryTransformClient = 
+          node_handle.serviceClient<moveit_multi_dof_plans::TransformTrajectory>("inverse_robot_trajectory_transform");
 
   nav_msgs::Path path;
   path.header.stamp = ros::Time::now();
@@ -243,6 +248,28 @@ ros::ServiceClient trajectoryClient =
 
   ROS_INFO_NAMED("back_and_forth", "Visualizing plan as a trajectory");
   visual_tools.publishText(text_pose, "Pose Goal", rvt::WHITE, rvt::XLARGE);
+
+  visual_tools.trigger();
+  visual_tools.prompt("next step");
+
+  transformTrajectory.request.trajectoryToTransform = trajectoryFromPath.response.trajectory;
+
+	if (trajectoryTransformClient.call(transformTrajectory))
+        {
+	    ROS_INFO("Received response.");
+    	}
+    	else
+    	{
+      	    ROS_ERROR("Failed to call service transformation trajectory.");
+	    ros::shutdown();
+	    return 1;
+	}
+
+  displayTrajectory.trajectory[0] = transformTrajectory.response.transformedTrajectory;
+//  plan.trajectory_ = trajectoryFromPath.response.trajectory;
+
+  statePublisher.publish(displayTrajectory);
+
   visual_tools.trigger();
   visual_tools.prompt("next step");
 

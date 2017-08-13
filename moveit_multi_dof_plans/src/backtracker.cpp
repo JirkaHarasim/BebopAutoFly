@@ -51,7 +51,7 @@
 #include "moveit/robot_state/conversions.h"
 #include "trajectory_msgs/MultiDOFJointTrajectory.h"
 #include "trajectory_msgs/MultiDOFJointTrajectoryPoint.h"
-#include "testing/GetRobotTrajectoryFromPath.h"
+#include "moveit_multi_dof_plans/GetRobotTrajectoryFromPath.h"
 
 nav_msgs::Path path;
 
@@ -157,9 +157,9 @@ ROS_INFO_NAMED("backtracker", "Current robot state aquired.");
   displayTrajectory.trajectory_start = robotStateMsg;
 
 
-  testing::GetRobotTrajectoryFromPath trajectoryFromPath;
+  moveit_multi_dof_plans::GetRobotTrajectoryFromPath trajectoryFromPath;
 ros::ServiceClient trajectoryClient = 
-          node_handle.serviceClient<testing::GetRobotTrajectoryFromPath>("get_robot_trajectory_from_path");
+          node_handle.serviceClient<moveit_multi_dof_plans::GetRobotTrajectoryFromPath>("get_robot_trajectory_from_path");
     ROS_INFO("Calling path to robot trajectory service.");
   ROS_INFO_NAMED("backtracker", "Service registered.");
 

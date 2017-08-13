@@ -17,7 +17,7 @@
    -model quadrotor"
      respawn="false" output="screen"/>
 
-<node pkg="testing" type="frodopathy" name="frodopathy"
+<node pkg="moveit_multi_dof_plans" type="frodopathy" name="frodopathy"
 	args="/ground_truth/state /frodopathy"/>
      
 <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ></node>

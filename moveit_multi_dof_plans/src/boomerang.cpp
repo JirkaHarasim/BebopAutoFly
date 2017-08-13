@@ -51,7 +51,6 @@
 #include "moveit/robot_state/conversions.h"
 #include "trajectory_msgs/MultiDOFJointTrajectory.h"
 #include "trajectory_msgs/MultiDOFJointTrajectoryPoint.h"
-#include "testing/GetRobotTrajectoryFromPath.h"
 #include "trajectory_msgs/MultiDOFJointTrajectory.h"
 #include "trajectory_msgs/MultiDOFJointTrajectoryPoint.h"
 
@@ -91,7 +90,7 @@ int main(int argc, char **argv)
   ROS_INFO_NAMED("boomerang", "Reference frame: %s", move_group.getPlanningFrame().c_str());
 
   move_group.setPlanningTime(2);
-  move_group.setWorkspace(-10, -10, 0.7, 10, 10, 1.7);
+  move_group.setWorkspace(-10, -10, 0.7, 10, 10, 1.3);
 
   visual_tools.trigger();
   visual_tools.prompt("next step");

@@ -24,6 +24,8 @@ find_package(Eigen3 REQUIRED)
 add_service_files(DIRECTORY srv
     FILES
     GetRobotTrajectoryFromPath.srv
+    TransformTrajectory.srv
+    InverseTransformTrajectory.srv
 #    NOINSTALL
     )
 
@@ -41,6 +43,7 @@ include_directories(
 
 add_executable(frodopathy src/frodopath.cpp)
 add_executable(robottrajectory src/robottrajectoryfrompathservice.cpp)
+add_executable(trajectorytransformer src/trajectorytransformer.cpp)
 add_executable(backtracker src/backtracker.cpp)
 add_executable(boomerang src/boomerang.cpp)
 add_executable(backandforth src/backandforth.cpp)
@@ -49,6 +52,7 @@ add_executable(rotation src/rotation.cpp)
 
 target_link_libraries(frodopathy ${catkin_LIBRARIES})
 target_link_libraries(robottrajectory ${catkin_LIBRARIES})
+target_link_libraries(trajectorytransformer ${catkin_LIBRARIES})
 target_link_libraries(backtracker ${catkin_LIBRARIES})
 target_link_libraries(boomerang ${catkin_LIBRARIES})
 target_link_libraries(backandforth ${catkin_LIBRARIES})
@@ -63,5 +67,7 @@ add_dependencies(square square_gencpp)
 add_dependencies(rotation rotation_gencpp)
 
 add_dependencies(robottrajectory robottrajectory_gencpp)
-add_dependencies(robottrajectory testing_generate_messages_cpp)
+add_dependencies(trajectorytransformer trajectorytransformer_gencpp)
+add_dependencies(robottrajectory moveit_multi_dof_plans_generate_messages_cpp)
+add_dependencies(trajectorytransformer moveit_multi_dof_plans_generate_messages_cpp)
 

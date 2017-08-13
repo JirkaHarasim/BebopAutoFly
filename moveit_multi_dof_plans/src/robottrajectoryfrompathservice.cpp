@@ -1,11 +1,11 @@
 #include "ros/ros.h"
-#include "testing/GetRobotTrajectoryFromPath.h"
+#include "moveit_multi_dof_plans/GetRobotTrajectoryFromPath.h"
 
 class RobotTrajectoryFromPath
 {
 public:
-  bool getRobotTrajectoryFromPath(testing::GetRobotTrajectoryFromPath::Request& req,
-                                  testing::GetRobotTrajectoryFromPath::Response& res)
+  bool getRobotTrajectoryFromPath(moveit_multi_dof_plans::GetRobotTrajectoryFromPath::Request& req,
+                                  moveit_multi_dof_plans::GetRobotTrajectoryFromPath::Response& res)
   {
     moveit_msgs::RobotTrajectory robotTrajectoryMsg;
     trajectory_msgs::MultiDOFJointTrajectory multi;
