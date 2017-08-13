@@ -1,5 +1,6 @@
 #include "ros/ros.h"
 #include <tf/transform_datatypes.h>
+#include <tf/transform_listener.h>
 #include "moveit_multi_dof_plans/TransformTrajectory.h"
 #include "moveit_multi_dof_plans/InverseTransformTrajectory.h"
 
@@ -45,15 +46,38 @@ public:
   }
 
   TrajectoryTransformer(ros::NodeHandle n)
-	: rotation_(tf::Vector3(0,0,1), 1.57)
   {
     n.param<std::string>("odom_frame_id", odom_frame_id, "odom");
     n.param<std::string>("base_frame_id", base_frame_id, "base_link");
   }
 
+  bool getTf()
+  {
+    tf::TransformListener listener;
+    tf::StampedTransform transform;
+
+    try
+    {
+      ros::Time now = ros::Time::now();
+      listener.waitForTransform(base_frame_id, odom_frame_id,
+                              now, ros::Duration(3.0));
+      listener.lookupTransform(base_frame_id, odom_frame_id,
+                              now, transform);
+    }
+    catch (tf::TransformException ex)
+    {
+      ROS_ERROR("%s",ex.what());
+    }
+
+    initialRotation = transform.getRotation();
+
+    ROS_INFO("The initial rotation between %s and %s is %f degrees at axis [%f,%f,%f]", base_frame_id.c_str(), odom_frame_id.c_str(),
+		initialRotation.getAngle(), initialRotation.getAxis().getX(), initialRotation.getAxis().getY(), initialRotation.getAxis().getZ());
+  }
+
 private:
 
-  tf::Quaternion rotation_;
+  tf::Quaternion initialRotation;
   std::string odom_frame_id;
   std::string base_frame_id;
 
@@ -78,15 +102,15 @@ private:
      trajectory_msgs::MultiDOFJointTrajectoryPoint toReturn;
      toReturn.time_from_start = input.time_from_start;
 
-     tf::Quaternion rotation = rotation_;
+     tf::Quaternion rotation = initialRotation;
      if (inverse)
      {
-	rotation = rotation_.inverse();
+	rotation = initialRotation.inverse();
      }
 
      geometry_msgs::Transform transform;
      tf::Vector3 toRotate(input.transforms[0].translation.x,input.transforms[0].translation.y,input.transforms[0].translation.z);
-     toRotate = toRotate.rotate(rotation.getAxis(), rotation_.getAngle());
+     toRotate = toRotate.rotate(rotation.getAxis(), rotation.getAngle());
 
      transform.translation.x = toRotate.getX();
      transform.translation.y = toRotate.getY();
@@ -108,6 +132,7 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
 
   TrajectoryTransformer server(n);
+  server.getTf();
   ros::ServiceServer ss1 = n.advertiseService("robot_trajectory_transform", &TrajectoryTransformer::transformTrajectory, &server);
   ros::ServiceServer ss2 = n.advertiseService("inverse_robot_trajectory_transform", &TrajectoryTransformer::inverseTransformTrajectory, &server);
 

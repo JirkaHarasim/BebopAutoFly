@@ -1,8 +1,11 @@
 <?xml version="1.0"?>
 <launch>
+
   <param name="path_to_backtrack_topic" value="/bebop/frodopathy" type="str"/>
+
   <node name="backtracker" pkg="moveit_multi_dof_plans" type="backtracker" respawn="false" output="screen"/>
   
+  <node pkg="moveit_multi_dof_plans" type="robottrajectory" name="path_to_trajectory" output="screen"/>
+  <node pkg="moveit_multi_dof_plans" type="trajectorytransformer" name="trajectory_transformer" output="screen"/>
 
-<node pkg="moveit_multi_dof_plans" type="robottrajectory" name="path_to_trajectory" output="screen"/>
 </launch>

@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <launch>
 
- <param name="planning_group" value="Bebop" type="str"/> <!--BebopAndKinect-->
+  <param name="planning_group" value="Bebop" type="str"/> <!--BebopAndKinect-->
   <node name="boomerang" pkg="moveit_multi_dof_plans" type="boomerang" respawn="false" output="screen"/>
+
+  <node pkg="moveit_multi_dof_plans" type="trajectorytransformer" name="trajectory_transformer" output="screen"/>
   
 </launch>

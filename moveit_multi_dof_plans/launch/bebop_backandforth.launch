@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
    <param name="plan_variant" value="1" type="int"/>
- <param name="planning_group" value="BebopAndKinect" type="str"/> <!--BebopAndKinect;;Bebop-->
+ <param name="planning_group" value="Bebop" type="str"/> <!--BebopAndKinect;;Bebop-->
 
   <node name="backandforth" pkg="moveit_multi_dof_plans" type="backandforth" respawn="false" output="screen">
   </node>
