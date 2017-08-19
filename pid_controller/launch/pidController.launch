@@ -1,19 +1,24 @@
 <?xml version="1.0"?>
 <launch>
 
-<param name="simple_controller_rotation" value="7.0" type="double"/>
-<param name="simple_controller_movement" value="0.4" type="double"/>
+<param name="pid_namespace" value="pid_manager" type="string"/>
 
-<node pkg="simple_controller" type="simple_controller" name="simple_controller" respawn="true" output="screen"/> 
+<param name="pid_odom_subscribe_topic" value="/bebop/odom" type="string"/>
+<!--<param name="pid_x_twist_subscribe_topic" value="x_twist" type="string"/>
+<param name="pid_y_twist_subscribe_topic" value="y_twist" type="string"/>
+<param name="pid_z_twist_subscribe_topic" value="z_twist" type="string"/>
+<param name="pid_z_twist_angle_subscribe_topic" value="z_angle_twist" type="string"/>
 
-    <!--needed to continuously publish the command to move the drone from the simple controller-->
-   <node pkg="simple_controller" type="cmd_vel_repeater" name="cmd_vel_repeater"
-	args="/cmd_vel_to_repeat /yocs_cmd_vel_mux/repeater/cmd_vel" />
+<param name="pid_twist_publish_topic" value="cmd_vel" type="string"/>
+<param name="pid_x_odom_publish_topic" value="x_odom" type="string"/>
+<param name="pid_y_odom_publish_topic" value="y_odom" type="string"/>
+<param name="pid_z_odom_publish_topic" value="z_odom" type="string"/>
+<param name="pid_z_odom_angle_publish_topic" value="z_angle_odom" type="string"/>-->
 
-   <node pkg="simple_controller" type="cmd_vel_adjustor" name="cmd_vel_adjustor" output="screen"
-	args="/yocs_cmd_vel_mux/repeater/cmd_vel /yocs_cmd_vel_mux/adjustor/cmd_vel" /> 
+<node pkg="pid_controller" type="pid_manager" name="pid_manager" respawn="true" output="screen"/> 
 
 <!--   <node pkg="simple_controller" type="cmd_vel_limiter" name="cmd_vel_limiter" output="screen"
 	args="/yocs_cmd_vel_mux/repeater/cmd_vel /yocs_cmd_vel_mux/adjustor/cmd_vel" /> -->
 
 </launch>
+
