@@ -123,7 +123,12 @@ ros::ServiceClient trajectoryTransformClient =
   bool success = move_group.plan(my_plan);
   ROS_INFO_NAMED("boomerang", "Visualizing plan %s, got %d states.", success ? "" : "FAILED", (int)my_plan.trajectory_.multi_dof_joint_trajectory.points.size());
 
-  transformTrajectory.request.trajectoryToTransform = my_plan.trajectory_;
+  for (int i = 0; i < my_plan.trajectory_.multi_dof_joint_trajectory.points.size(); i++)
+  {
+     my_plan.trajectory_.multi_dof_joint_trajectory.points[i].time_from_start = ros::Duration(0.2*i);
+  }
+
+transformTrajectory.request.trajectoryToTransform = my_plan.trajectory_;
 
 	if (trajectoryTransformClient.call(transformTrajectory))
         {
@@ -139,18 +144,11 @@ ros::ServiceClient trajectoryTransformClient =
 
   my_plan.trajectory_ = transformTrajectory.response.transformedTrajectory;
 
-  for (int i = 0; i < my_plan.trajectory_.multi_dof_joint_trajectory.points.size(); i++)
-  {
-     my_plan.trajectory_.multi_dof_joint_trajectory.points[i].time_from_start = ros::Duration(0.2*i);
-  }
-
   visual_tools.publishTrajectoryLine(my_plan.trajectory_, joint_model_group);
 
 
   visual_tools.trigger();
   visual_tools.prompt("next step");
-
-
 
   move_group.execute(my_plan);
 

@@ -20,6 +20,7 @@ public:
 	return false;
     }
 
+    ROS_INFO("Rotating the trajectory by %f rad.", initialRotation.getAngle());
     robotTrajectoryMsg.multi_dof_joint_trajectory = transform(input, false);
     res.transformedTrajectory = robotTrajectoryMsg;
 
@@ -39,6 +40,7 @@ public:
 	return false;
     }
 
+    ROS_INFO("Rotating the trajectory by %f rad.", initialRotation.inverse().getAngle());
     robotTrajectoryMsg.multi_dof_joint_trajectory = transform(input, true);
     res.transformedTrajectory = robotTrajectoryMsg;
 
@@ -58,9 +60,9 @@ public:
 
     try
     {
-      ros::Time now = ros::Time::now();
+      ros::Time now = ros::Time::now() + ros::Duration(0.5);
       listener.waitForTransform(base_frame_id, odom_frame_id,
-                              now, ros::Duration(3.0));
+                              now, ros::Duration(4.0));
       listener.lookupTransform(base_frame_id, odom_frame_id,
                               now, transform);
     }
@@ -71,7 +73,7 @@ public:
 
     initialRotation = transform.getRotation();
 
-    ROS_INFO("The initial rotation between %s and %s is %f degrees at axis [%f,%f,%f]", base_frame_id.c_str(), odom_frame_id.c_str(),
+    ROS_INFO("The initial rotation between %s and %s is %f rad at axis [%f,%f,%f]", base_frame_id.c_str(), odom_frame_id.c_str(),
 		initialRotation.getAngle(), initialRotation.getAxis().getX(), initialRotation.getAxis().getY(), initialRotation.getAxis().getZ());
   }
 

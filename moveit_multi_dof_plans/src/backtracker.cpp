@@ -81,10 +81,6 @@ nav_msgs::Path turnPathAround()
 //ROS_INFO("Index had a value of %d.", i);
         geometry_msgs::PoseStamped pose;
         pose.pose = path.poses[i].pose;
-	//pose.pose.orientation.w = 1;
-	//pose.pose.orientation.x = 0;
-	//pose.pose.orientation.y = 0;
-	//pose.pose.orientation.z = 0;
 
 	if (pose.pose.position.z < 0.9)
 	{
@@ -218,15 +214,21 @@ ros::ServiceClient trajectoryTransformClient =
 
   //robotTrajectoryMsg.multi_dof_joint_trajectory = multi;
   displayTrajectory.trajectory.push_back(trajectoryFromPath.response.trajectory);
+
+transformTrajectory.response.transformedTrajectory.multi_dof_joint_trajectory.points[0].transforms[0].rotation.w = 1;
+transformTrajectory.response.transformedTrajectory.multi_dof_joint_trajectory.points[0].transforms[0].rotation.x = 0;
+transformTrajectory.response.transformedTrajectory.multi_dof_joint_trajectory.points[0].transforms[0].rotation.y = 0;
+transformTrajectory.response.transformedTrajectory.multi_dof_joint_trajectory.points[0].transforms[0].rotation.z = 0;
+
   backtrackingPlan.trajectory_ = transformTrajectory.response.transformedTrajectory;
 
   statePublisher.publish(displayTrajectory);
 
-  ROS_INFO_NAMED("tutorial", "Visualizing backtrackingPlan as a trajectory");
+  ROS_INFO_NAMED("backtracker", "Visualizing backtrackingPlan as a trajectory");
   visual_tools.trigger();
   visual_tools.prompt("next step");
 
-  ROS_INFO_NAMED("tutorial", "Executing backtrackingPlan");
+  ROS_INFO_NAMED("backtracker", "Executing backtrackingPlan");
   move_group.execute(backtrackingPlan);
 
   visual_tools.trigger();
