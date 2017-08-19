@@ -55,7 +55,7 @@ class PidManager
     PidManager(ros::NodeHandle node) 
     {
 	std::string ns;
-	node.param<std::string>("pid_namespace", ns, "pid_manager");
+	node.param<std::string>("pid_manager_namespace", ns, "pid_manager");
 	ns = ns + "/";
 
 	node.param<std::string>("pid_odom_subscribe_topic", odomSubscribeTopic, ns + "odom");
@@ -82,6 +82,11 @@ class PidManager
     void publish()
     {
 	twistPublisher.publish(commandToSend);
+    }
+
+    geometry_msgs::Twist getLastState()
+    {
+	return commandToSend;
     }
 
     private:
@@ -129,25 +134,3 @@ class PidManager
         zOdomAnglePublisher = n.advertise<std_msgs::Float64>(zOdomAnglePublishTopic, 1);
     }
 };
-
-int main (int argc, char **argv)
-{
-    ros::init(argc, argv, "PidManager");
-    ros::NodeHandle n;
-
-    ROS_INFO("Have %i arguments passed.", argc);
-
-    PidManager manager(n);
-    manager.initPublishersAndSubscribers(n);
-
-    ros::Rate loop_rate(20);
-
-    while(ros::ok())
-    {
-        manager.publish();
-        ros::spinOnce();
-        loop_rate.sleep();    
-    }
-
-    return 0;
-}

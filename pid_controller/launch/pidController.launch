@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
-<param name="pid_namespace" value="pid_manager" type="string"/>
+<param name="pid_manager_namespace" value="pid_manager" type="string"/>
 
 <param name="pid_odom_subscribe_topic" value="/bebop/odom" type="string"/>
 <!--<param name="pid_x_twist_subscribe_topic" value="x_twist" type="string"/>

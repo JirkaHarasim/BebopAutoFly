@@ -1,55 +1,78 @@
 #include <ros/ros.h>
 #include <actionlib/server/action_server.h>
 #include <pthread.h>
-
+#include "std_msgs/Bool.h"
+#include "tf/transform_datatypes.h"
 #include <trajectory_msgs/MultiDOFJointTrajectory.h>
 #include <action_controller/MultiDofFollowJointTrajectoryAction.h>
 #include <geometry_msgs/Twist.h>
+#include "pidManager.cpp"
 
-class Controller{
+class PidController{
 private:
 	typedef actionlib::ActionServer<action_controller::MultiDofFollowJointTrajectoryAction> ActionServer;
 	typedef ActionServer::GoalHandle GoalHandle;
 public:
-	Controller(ros::NodeHandle &n, double rotationDuration, double movementDuration) :
-		node_(n),
+	PidController(ros::NodeHandle &node) :
+		node_(node),
+		pidManager_(node),
 		action_server_(node_, "multi_dof_joint_trajectory_action",
-				boost::bind(&Controller::goalCB, this, _1),
-				boost::bind(&Controller::cancelCB, this, _1),
+				boost::bind(&PidController::goalCB, this, _1),
+				boost::bind(&PidController::cancelCB, this, _1),
 				false),
 				has_active_goal_(false)
 {
-		creato=0;
-		empty.linear.x=0;
-		empty.linear.y=0;
-		empty.linear.z=0;
-		empty.angular.z=0;
-		empty.angular.y=0;
-		empty.angular.x=0;
-		pub_topic = node_.advertise<geometry_msgs::Twist>("cmd_vel_to_repeat", 1);
+	created=false;
 
-		rotationConstant = calculateRotationConstant(rotationDuration);
-		movementConstant = calculateMovementConstant(movementDuration);
+	action_server_.start();
 
-		action_server_.start();
-		ROS_INFO_STREAM("Node ready!");
+	std::string ns;
+	node.param<std::string>("pid_controller_namespace", ns, "pid_controller");
+	ns = ns + "/";
+
+	node.param<std::string>("pid_enable_topic_name", enableTopicName, ns + "pid_enable");
+
+	node.param<std::string>("pid_x_desired_topic_name", xDesiredTopicName, ns + "x_desired");
+	node.param<std::string>("pid_y_desired_topic_name", yDesiredTopicName, ns + "y_desired");
+	node.param<std::string>("pid_z_desired_topic_name", zDesiredTopicName, ns + "z_desired");
+	node.param<std::string>("pid_z_desired_angle_topic_name", zDesiredAngleTopicName, ns + "z_desired_angle");
+
+        pidEnable = node_.advertise<std_msgs::Bool>(enableTopicName, 1);
+        xDesiredPublisher = node_.advertise<std_msgs::Float64>(xDesiredTopicName, 1);
+        yDesiredPublisher = node_.advertise<std_msgs::Float64>(yDesiredTopicName, 1);
+        zDesiredPublisher = node_.advertise<std_msgs::Float64>(zDesiredTopicName, 1);
+        zDesiredAnglePublisher = node_.advertise<std_msgs::Float64>(zDesiredAngleTopicName, 1);
+	
+	pidManager_.initPublishersAndSubscribers(node);
+
+	ROS_INFO_STREAM("Node ready!");
+
+
 }
 private:
 	ros::NodeHandle node_;
 	ActionServer action_server_;
-	ros::Publisher pub_topic;
-	geometry_msgs::Twist empty;
+	PidManager pidManager_;
+
 	geometry_msgs::Transform_<std::allocator<void> > lastPosition;
-	geometry_msgs::Twist cmd;
 	pthread_t trajectoryExecutor;
-	int creato;
+	bool created;
+
+	ros::Publisher pidEnable;
+	ros::Publisher xDesiredPublisher;
+	ros::Publisher yDesiredPublisher;
+	ros::Publisher zDesiredPublisher;
+	ros::Publisher zDesiredAnglePublisher;
+
+	std::string enableTopicName;
+	std::string xDesiredTopicName;
+	std::string yDesiredTopicName;
+	std::string zDesiredTopicName;
+	std::string zDesiredAngleTopicName;
 
 	bool has_active_goal_;
 	GoalHandle active_goal_;
 	trajectory_msgs::MultiDOFJointTrajectory_<std::allocator<void> > toExecute;
-
-	double rotationConstant;
-	double movementConstant;
 
 	double calculateRotationConstant(double rotation) 
 	{ 
@@ -67,12 +90,14 @@ private:
 		if (active_goal_ == gh)
 		{
 			// Stops the controller.
-			if(creato){
+			if(created){
 				ROS_INFO_STREAM("Stop thread");
 				pthread_cancel(trajectoryExecutor);
-				creato=0;
+				created=false;
 			}
-			pub_topic.publish(empty);
+			std_msgs::Bool toPublish;
+			toPublish.data = false;
+			pidEnable.publish(toPublish);
 
 			// Marks the current goal as canceled.
 			active_goal_.setCanceled();
@@ -84,11 +109,13 @@ private:
 		if (has_active_goal_)
 		{
 			// Stops the controller.
-			if(creato){
+			if(created){
 				pthread_cancel(trajectoryExecutor);
-				creato=0;
+				created=false;
 			}
-			pub_topic.publish(empty);
+			std_msgs::Bool toPublish;
+			toPublish.data = false;
+			pidEnable.publish(toPublish);
 
 			// Marks the current goal as canceled.
 			active_goal_.setCanceled();
@@ -100,9 +127,8 @@ private:
 		has_active_goal_ = true;
 		toExecute = gh.getGoal()->trajectory;
 
-		//controllore solo per il giunto virtuale Base
 		if(pthread_create(&trajectoryExecutor, NULL, threadWrapper, this)==0){
-			creato=1;
+			created=true;
 			ROS_INFO_STREAM("Thread for trajectory execution created");
 		} else {
 			ROS_INFO_STREAM("Thread creation failed!");
@@ -111,117 +137,90 @@ private:
 	}
 
 	static void* threadWrapper(void* arg) {
-		Controller * mySelf=(Controller*)arg;
+		PidController * mySelf=(PidController*)arg;
 		mySelf->executeTrajectory();
 		return NULL;
 	}
 
 	void executeTrajectory()
         {
-		if(toExecute.joint_names[0]=="Base" && toExecute.points.size()>0)
+	    if(toExecute.joint_names[0]=="Base" && toExecute.points.size()>0)
+	    {
+		std_msgs::Bool toPublish;
+		toPublish.data = true;
+		pidEnable.publish(toPublish);
+
+		ros::Rate loop_rate(20);
+		for(int k=0; k<toExecute.points.size(); k++)
 		{
-			for(int k=0; k<toExecute.points.size(); k++)
-			{
-				//ricavo cmd da effettuare
-				geometry_msgs::Transform_<std::allocator<void> > punto=toExecute.points[k].transforms[0];
-				bool executed=true;
-				if(k!=0)
-				{
-					executed=publishTranslationComand(punto,false);
-					if(k==(toExecute.points.size()-1))
-					{
-						if(!executed) 
-						{
-							publishTranslationComand(punto,true);
-						}
-						publishRotationComand(punto,false);
-					}
-				} 
-				else 
-				{
-					publishRotationComand(punto,true);
-				}
-				pub_topic.publish(empty);
-				//aggiorno start position
-				if(executed)
-				{
-					lastPosition.translation=punto.translation;
-					lastPosition.rotation=punto.rotation;
-				}
-			}
+		    geometry_msgs::Transform_<std::allocator<void> > transform = toExecute.points[k].transforms[0];
+
+		    tf::Quaternion rotation(transform.rotation.x,
+				transform.rotation.y,
+				transform.rotation.z,
+				transform.rotation.w);
+		    double roll, pitch, yaw;
+		    tf::Matrix3x3 m(rotation);
+		    m.getRPY(roll, pitch, yaw);
+
+		    xDesiredPublisher.publish(transform.translation.x);
+		    yDesiredPublisher.publish(transform.translation.y);
+		    zDesiredPublisher.publish(transform.translation.z);
+		    zDesiredAnglePublisher.publish(yaw);
+
+		    while(!isAllCloseToZero(pidManager_.getLastState()))
+		    {
+			pidManager_.publish();
+			loop_rate.sleep();
+		    }
 		}
-		active_goal_.setSucceeded();
-		has_active_goal_=false;
-		creato=0;
+	    }
+
+	    std_msgs::Bool toPublish;
+	    toPublish.data = false;
+	    pidEnable.publish(toPublish);
+
+	    active_goal_.setSucceeded();
+	    has_active_goal_=false;
+	    created=false;
 	}
 
-	bool publishTranslationComand(geometry_msgs::Transform_<std::allocator<void> > punto, bool anyway){
-		//creazione comando di traslazione
-		cmd.linear.x=punto.translation.x-lastPosition.translation.x;
-		cmd.linear.y=punto.translation.y-lastPosition.translation.y;
-		cmd.linear.z=punto.translation.z-lastPosition.translation.z;
-		cmd.angular.x=cmd.angular.y=cmd.angular.z=0;
-
-		if(anyway || cmd.linear.x>=0.5 || cmd.linear.y>=0.5 || cmd.linear.z>=0.5
-                          || cmd.linear.x<=-0.5 || cmd.linear.y<=-0.5 || cmd.linear.z<=-0.5){
-			printPositionInfo();
-			printCmdInfo();
-			pub_topic.publish(cmd);
-			//tempo d'esecuzione
-			ros::Duration(movementConstant).sleep();
-			return true;
-		}
+	bool isAllCloseToZero(geometry_msgs::Twist cmd)
+	{
+	    if(!isValueCloseToZero(cmd.linear.x))
 		return false;
+
+	    if(!isValueCloseToZero(cmd.linear.y))
+		return false;
+
+	    if(!isValueCloseToZero(cmd.linear.z))
+		return false;
+
+	    if(!isValueCloseToZero(cmd.angular.z))
+		return false;
+
+	    return true;
 	}
 
-	void publishRotationComand(geometry_msgs::Transform_<std::allocator<void> > punto, bool start){
-		//comando di allineamento, permesse solo rotazioni sull'asse z
-		cmd.linear.x=cmd.linear.y=cmd.linear.z=cmd.angular.x=cmd.angular.y=0;
-		//start = true --> devo tornare nell'orientazione 0
-		//start = false --> devo arrivare al'orientazione punto.rotation.z
-		cmd.angular.z=(start?0-punto.rotation.z:punto.rotation.z);
+	bool isValueCloseToZero(double value)
+	{
+	    double limit = 0.1;
+	    if (value > 0 && value > limit)
+		return false;
 
-		printCmdInfo();
+	    if (value < 0 && value < -limit)
+		return false;
 
-		double sleep=cmd.angular.z*rotationConstant; //tempo necessario a tornare nella giusta orientazione
-		if(sleep<0) sleep=-sleep;
-		pub_topic.publish(cmd);
-		ros::Duration(sleep).sleep();
-		cmd.angular.z=0;
+	    return true;
 	}
-
-	void printPositionInfo(){
-		ROS_INFO_STREAM("Start Position: ["<<lastPosition.translation.x<<
-				", "<<lastPosition.translation.y<<
-				", "<<lastPosition.translation.z<<"] "<<
-				"[ "<<lastPosition.rotation.x<<
-				", "<<lastPosition.rotation.y<<
-				", "<<lastPosition.rotation.z<<" ]");
-	}
-
-	void printCmdInfo(){
-		ROS_INFO_STREAM("cmd to execute: "<<"x:"<<cmd.linear.x
-				<<" y: " << cmd.linear.y
-				<<" z: " << cmd.linear.z
-				<<" rX: " << cmd.angular.x
-				<<" rY: " << cmd.angular.y
-				<<" rZ: " << cmd.angular.z);
-	}
-
 };
 
 int main(int argc, char** argv)
 {
-	ros::init(argc, argv, "simple_controller");
-	ros::NodeHandle node;//("~");
+	ros::init(argc, argv, "pid_controller");
+	ros::NodeHandle node;
 
-	double rotationParameter;
-	double moveParameter;
-
-	node.param<double>("simple_controller_rotation", rotationParameter, 3.0);
-	node.param<double>("simple_controller_movement", moveParameter, 1.0);
-
-	Controller control(node, rotationParameter, moveParameter);
+	PidController control(node);
 
 	ros::spin();
 

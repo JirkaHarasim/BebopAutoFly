@@ -53,11 +53,14 @@ catkin_package(
 include_directories(include)
 
 
-add_executable(pid_manager src/pidManager.cpp)
+#add_executable(pid_manager src/pidManager.cpp)
+add_executable(pid_controller src/pidController.cpp)
 
-target_link_libraries(pid_manager ${catkin_LIBRARIES})
+#target_link_libraries(pid_manager ${catkin_LIBRARIES})
+target_link_libraries(pid_controller ${catkin_LIBRARIES})
 
-add_dependencies(pid_manager pidmanager_gencpp)
+#add_dependencies(pid_manager pidmanager_gencpp)
+add_dependencies(pid_controller pidcontroller_gencpp)
 
 
 
