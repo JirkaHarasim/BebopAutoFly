@@ -4,14 +4,14 @@
 <param name="pid_manager_namespace" value="pid_manager" type="string"/>
 <param name="pid_controller_namespace" value="pid_controller" type="string"/>
 
-<param name="pid_odom_subscribe_topic" value="/odom" type="string"/>
+<param name="pid_odom_subscribe_topic" value="/ground_truth/state" type="string"/>
 <!--<param name="pid_x_twist_subscribe_topic" value="x_twist" type="string"/>
 <param name="pid_y_twist_subscribe_topic" value="y_twist" type="string"/>
 <param name="pid_z_twist_subscribe_topic" value="z_twist" type="string"/>
-<param name="pid_z_twist_angle_subscribe_topic" value="z_angle_twist" type="string"/>
+<param name="pid_z_twist_angle_subscribe_topic" value="z_angle_twist" type="string"/>-->
 
-<param name="pid_twist_publish_topic" value="cmd_vel" type="string"/>
-<param name="pid_x_odom_publish_topic" value="x_odom" type="string"/>
+<param name="pid_twist_publish_topic" value="/yocs_cmd_vel_mux/pid_manager/cmd_vel" type="string"/>
+<!--<param name="pid_x_odom_publish_topic" value="x_odom" type="string"/>
 <param name="pid_y_odom_publish_topic" value="y_odom" type="string"/>
 <param name="pid_z_odom_publish_topic" value="z_odom" type="string"/>
 <param name="pid_z_odom_angle_publish_topic" value="z_angle_odom" type="string"/>-->
