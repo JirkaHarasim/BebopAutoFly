@@ -49,6 +49,15 @@ public:
 
 
 }
+
+	~PidController()
+{
+	if (has_active_goal_)
+	{
+	    cancelCB(active_goal_);
+	}
+}
+
 private:
 	ros::NodeHandle node_;
 	ActionServer action_server_;
@@ -137,13 +146,15 @@ private:
 	}
 
 	static void* threadWrapper(void* arg) {
-		PidController * mySelf=(PidController*)arg;
+		PidController* mySelf = (PidController*)arg;
 		mySelf->executeTrajectory();
 		return NULL;
 	}
 
 	void executeTrajectory()
         {
+ROS_INFO("----------->Executing trajectory with %d points on joint %s.", (int)toExecute.points.size(), toExecute.joint_names[0].c_str());
+
 	    if(toExecute.joint_names[0]=="Base" && toExecute.points.size()>0)
 	    {
 		std_msgs::Bool toPublish;
@@ -163,13 +174,20 @@ private:
 		    tf::Matrix3x3 m(rotation);
 		    m.getRPY(roll, pitch, yaw);
 
+ROS_INFO("----------->Executing point with index %d with pose [%f, %f, %f] with %f rads.", (int)k, transform.translation.x, transform.translation.y, transform.translation.z, yaw);
+
 		    xDesiredPublisher.publish(transform.translation.x);
 		    yDesiredPublisher.publish(transform.translation.y);
 		    zDesiredPublisher.publish(transform.translation.z);
 		    zDesiredAnglePublisher.publish(yaw);
 
+//ROS_INFO("Publishing.");
+		    pidManager_.publish();
+		    loop_rate.sleep();
+
 		    while(!isAllCloseToZero(pidManager_.getLastState()))
 		    {
+//ROS_INFO("Publishing.");
 			pidManager_.publish();
 			loop_rate.sleep();
 		    }

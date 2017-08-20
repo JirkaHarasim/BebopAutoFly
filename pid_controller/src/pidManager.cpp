@@ -23,7 +23,7 @@ class PidManager
 	zOdomPublisher.publish(odom->pose.pose.position.z);
 	zOdomAnglePublisher.publish(yaw);
 
-	ROS_INFO("Pose and angle was [%f, %f, %f] with %f rads.", odom->pose.pose.position.x, odom->pose.pose.position.y, odom->pose.pose.position.z, yaw);
+	ROS_INFO("Actual pose and angle was [%f, %f, %f] with %f rads.", odom->pose.pose.position.x, odom->pose.pose.position.y, odom->pose.pose.position.z, yaw);
     }
 
     void xCallback(const std_msgs::Float64::ConstPtr& xCommand)
@@ -81,6 +81,7 @@ class PidManager
 
     void publish()
     {
+	ROS_INFO("Publishing [%f, %f, %f, %f].", commandToSend.linear.x, commandToSend.linear.y, commandToSend.linear.z, commandToSend.angular.z);
 	twistPublisher.publish(commandToSend);
     }
 

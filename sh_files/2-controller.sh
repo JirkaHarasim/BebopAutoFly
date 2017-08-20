@@ -1,3 +1,3 @@
 #!/bin/bash
-rosrun simple_controller simple_controller
+roslaunch pid_controller pidControllerSim.launch
 
