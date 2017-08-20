@@ -71,7 +71,7 @@ public:
       ROS_ERROR("%s",ex.what());
     }
 
-    initialRotation = transform.getRotation();
+    initialRotation = transform.getRotation().normalized();
 
     ROS_INFO("The initial rotation between %s and %s is %f rad at axis [%f,%f,%f]", base_frame_id.c_str(), odom_frame_id.c_str(),
 		initialRotation.getAngle(), initialRotation.getAxis().getX(), initialRotation.getAxis().getY(), initialRotation.getAxis().getZ());
