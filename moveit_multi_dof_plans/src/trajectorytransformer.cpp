@@ -1,4 +1,5 @@
 #include "ros/ros.h"
+#include "geometry_msgs/PoseStamped.h"
 #include <tf/transform_datatypes.h>
 #include <tf/transform_listener.h>
 #include "moveit_multi_dof_plans/TransformTrajectory.h"
@@ -82,6 +83,7 @@ private:
   tf::Quaternion initialRotation;
   std::string odom_frame_id;
   std::string base_frame_id;
+  tf::TransformListener listener;
 
   trajectory_msgs::MultiDOFJointTrajectory transform(trajectory_msgs::MultiDOFJointTrajectory input, bool inverse)
   {
@@ -98,13 +100,13 @@ private:
     return multi;
   }
 
-  trajectory_msgs::MultiDOFJointTrajectoryPoint getTransformedPoint(trajectory_msgs::MultiDOFJointTrajectoryPoint input,
-									bool inverse)
+  trajectory_msgs::MultiDOFJointTrajectoryPoint getTransformedPoint(trajectory_msgs::MultiDOFJointTrajectoryPoint input, bool inverse)
   {
-     trajectory_msgs::MultiDOFJointTrajectoryPoint toReturn;
-     toReturn.time_from_start = input.time_from_start;
 
-     tf::Quaternion rotation = initialRotation;
+    trajectory_msgs::MultiDOFJointTrajectoryPoint toReturn;
+    toReturn.time_from_start = input.time_from_start;
+
+/*     tf::Quaternion rotation = initialRotation;
      if (inverse)
      {
 	rotation = initialRotation.inverse();
@@ -124,7 +126,38 @@ private:
 
      toReturn.transforms.push_back(transform);
 
-     return toReturn;
+     return toReturn;*/
+    geometry_msgs::PoseStamped pose_in;
+    geometry_msgs::PoseStamped pose_out;
+
+    pose_in.header.stamp = ros::Time::now() - ros::Duration(0.05);
+    pose_in.header.frame_id = "base_link";
+
+    pose_in.pose.position.x = input.transforms[0].translation.x;
+    pose_in.pose.position.y = input.transforms[0].translation.y;
+    pose_in.pose.position.z = input.transforms[0].translation.z;
+
+    pose_in.pose.orientation = input.transforms[0].rotation;
+
+    try
+    {
+	listener.transformPose("/odom", pose_in, pose_out);
+    }
+    catch (tf::TransformException ex)
+    {
+  	ROS_ERROR("%s",ex.what());
+    }
+
+    geometry_msgs::Transform transform;
+
+    transform.translation.x = pose_out.pose.position.x;
+    transform.translation.y = pose_out.pose.position.y;
+    transform.translation.z = pose_out.pose.position.z;
+
+    transform.rotation = pose_out.pose.orientation;
+
+    toReturn.transforms.push_back(transform);
+    return toReturn;
   }
 };
 
@@ -134,7 +167,7 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
 
   TrajectoryTransformer server(n);
-  server.getTf();
+  //server.getTf();
   ros::ServiceServer ss1 = n.advertiseService("robot_trajectory_transform", &TrajectoryTransformer::transformTrajectory, &server);
   ros::ServiceServer ss2 = n.advertiseService("inverse_robot_trajectory_transform", &TrajectoryTransformer::inverseTransformTrajectory, &server);
 

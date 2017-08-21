@@ -10,6 +10,10 @@ class PidManager
     public:
     void odomCallback(const nav_msgs::Odometry::ConstPtr& odom)
     { 
+	ros::Time t = ros::Time::now();
+	if (lastTime + ros::Duration(0.1) > t)
+		return;
+
 	tf::Quaternion rotation(odom->pose.pose.orientation.x,
 				odom->pose.pose.orientation.y,
 				odom->pose.pose.orientation.z,
@@ -18,10 +22,15 @@ class PidManager
 	tf::Matrix3x3 m(rotation);
 	m.getRPY(roll, pitch, yaw);
 
-	xOdomPublisher.publish(odom->pose.pose.position.x);
-	yOdomPublisher.publish(odom->pose.pose.position.y);
-	zOdomPublisher.publish(odom->pose.pose.position.z);
-	zOdomAnglePublisher.publish(yaw);
+	lastOdomX = odom->pose.pose.position.x;
+	lastOdomY = odom->pose.pose.position.y;
+	lastOdomZ = odom->pose.pose.position.z;
+	lastOdomYaw = yaw;
+
+	xOdomPublisher.publish(lastOdomX);
+	yOdomPublisher.publish(lastOdomY);
+	zOdomPublisher.publish(lastOdomZ);
+	zOdomAnglePublisher.publish(lastOdomYaw);
 
 	ROS_INFO("Actual pose and angle was [%f, %f, %f] with %f rads.", odom->pose.pose.position.x, odom->pose.pose.position.y, odom->pose.pose.position.z, yaw);
     }
@@ -29,21 +38,25 @@ class PidManager
     void xCallback(const std_msgs::Float64::ConstPtr& xCommand)
     { 
 	commandToSend.linear.x = xCommand->data;
+	commandChanged = true;
     }
 
     void yCallback(const std_msgs::Float64::ConstPtr& yCommand)
     { 
 	commandToSend.linear.y = yCommand->data;
+	commandChanged = true;
     }
 
     void zCallback(const std_msgs::Float64::ConstPtr& zCommand)
     { 
 	commandToSend.linear.z = zCommand->data;
+	commandChanged = true;
     }
 
     void zAngleCallback(const std_msgs::Float64::ConstPtr& zAngleCommand)
     { 
 	commandToSend.angular.z = zAngleCommand->data;
+	commandChanged = true;
     }
 
     void initPublishersAndSubscribers(ros::NodeHandle n)
@@ -77,17 +90,39 @@ class PidManager
 	commandToSend.angular.x = 0;
 	commandToSend.angular.y = 0;
 	commandToSend.angular.z = 0;
+	
+	commandChanged = true;
+	lastTime = ros::Time::now();
     }
 
     void publish()
     {
-	ROS_INFO("Publishing [%f, %f, %f, %f].", commandToSend.linear.x, commandToSend.linear.y, commandToSend.linear.z, commandToSend.angular.z);
+	if (commandChanged)
+	{
+	    commandChanged = false;
+	    ROS_INFO("Publishing [%f, %f, %f, %f].", commandToSend.linear.x, commandToSend.linear.y, commandToSend.linear.z, commandToSend.angular.z);
+	}
 	twistPublisher.publish(commandToSend);
     }
 
-    geometry_msgs::Twist getLastState()
+    double getLastOdomX()
     {
-	return commandToSend;
+	return lastOdomX;
+    }
+
+    double getLastOdomY()
+    {
+	return lastOdomY;
+    }
+
+    double getLastOdomZ()
+    {
+	return lastOdomZ;
+    }
+
+    double getLastOdomYaw()
+    {
+	return lastOdomYaw;
     }
 
     private:
@@ -103,7 +138,14 @@ class PidManager
     ros::Subscriber zTwistSubscriber;
     ros::Subscriber zTwistAngleSubscriber;
 
+    double lastOdomX;
+    double lastOdomY;
+    double lastOdomZ;
+    double lastOdomYaw;
+
     geometry_msgs::Twist commandToSend;
+    bool commandChanged;
+    ros::Time lastTime;
 
     std::string odomSubscribeTopic;
     std::string xTwistSubscribeTopic;

@@ -122,13 +122,13 @@ ros::ServiceClient trajectoryTransformClient =
   pose.pose.position.z = 1;
   path.poses.push_back(pose);
 
-  pose.pose.position.x = 3;
+  pose.pose.position.y = 1;
   path.poses.push_back(pose);
   
-  pose.pose.position.x = 0;
+/*  pose.pose.position.x = 0;
   path.poses.push_back(pose);
 
-  pose.pose.position.x = 3;
+  pose.pose.position.x = 1;
   path.poses.push_back(pose);
 
   pose.pose.position.x = 0;
@@ -252,16 +252,16 @@ ros::ServiceClient trajectoryTransformClient =
 	}
 
   //robotTrajectoryMsg.multi_dof_joint_trajectory = multi;
-  displayTrajectory.trajectory.push_back(trajectoryFromPath.response.trajectory);
-  plan.trajectory_ = trajectoryFromPath.response.trajectory;
+  //displayTrajectory.trajectory.push_back(trajectoryFromPath.response.trajectory);
+//  plan.trajectory_ = trajectoryFromPath.response.trajectory;
 
-  statePublisher.publish(displayTrajectory);
+//  statePublisher.publish(displayTrajectory);
 
   ROS_INFO_NAMED("back_and_forth", "Visualizing plan as a trajectory");
-  visual_tools.publishText(text_pose, "Pose Goal", rvt::WHITE, rvt::XLARGE);
+  //visual_tools.publishText(text_pose, "Pose Goal", rvt::WHITE, rvt::XLARGE);
 
-  visual_tools.trigger();
-  visual_tools.prompt("next step");
+  //visual_tools.trigger();
+  //visual_tools.prompt("next step");
 
   transformTrajectory.request.trajectoryToTransform = trajectoryFromPath.response.trajectory;
 
@@ -276,9 +276,10 @@ ros::ServiceClient trajectoryTransformClient =
 	    return 1;
 	}
 
-  displayTrajectory.trajectory[0] = transformTrajectory.response.transformedTrajectory;
+  displayTrajectory.trajectory.push_back(transformTrajectory.response.transformedTrajectory);
 //  plan.trajectory_ = trajectoryFromPath.response.trajectory;
 
+plan.trajectory_ = transformTrajectory.response.transformedTrajectory;
   statePublisher.publish(displayTrajectory);
 
   visual_tools.trigger();

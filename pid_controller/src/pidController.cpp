@@ -155,13 +155,13 @@ private:
         {
 ROS_INFO("----------->Executing trajectory with %d points on joint %s.", (int)toExecute.points.size(), toExecute.joint_names[0].c_str());
 
+		ros::Rate loop_rate(20);
 	    if(toExecute.joint_names[0]=="Base" && toExecute.points.size()>0)
 	    {
 		std_msgs::Bool toPublish;
 		toPublish.data = true;
 		pidEnable.publish(toPublish);
 
-		ros::Rate loop_rate(20);
 		for(int k=0; k<toExecute.points.size(); k++)
 		{
 		    geometry_msgs::Transform_<std::allocator<void> > transform = toExecute.points[k].transforms[0];
@@ -170,22 +170,27 @@ ROS_INFO("----------->Executing trajectory with %d points on joint %s.", (int)to
 				transform.rotation.y,
 				transform.rotation.z,
 				transform.rotation.w);
-		    double roll, pitch, yaw;
+		    double roll, pitch, desiredYaw;
 		    tf::Matrix3x3 m(rotation);
-		    m.getRPY(roll, pitch, yaw);
+		    m.getRPY(roll, pitch, desiredYaw);
 
-ROS_INFO("----------->Executing point with index %d with pose [%f, %f, %f] with %f rads.", (int)k, transform.translation.x, transform.translation.y, transform.translation.z, yaw);
+		    double desiredX, desiredY, desiredZ;
+		    desiredX = transform.translation.x;
+		    desiredY = transform.translation.y;
+		    desiredZ = transform.translation.z;
 
-		    xDesiredPublisher.publish(transform.translation.x);
-		    yDesiredPublisher.publish(transform.translation.y);
-		    zDesiredPublisher.publish(transform.translation.z);
-		    zDesiredAnglePublisher.publish(yaw);
+ROS_INFO("----------->Executing point with index %d with pose [%f, %f, %f] with %f rads.", (int)k, desiredX, desiredY, desiredZ, desiredYaw);
+
+		    xDesiredPublisher.publish(desiredX);
+		    yDesiredPublisher.publish(desiredY);
+		    zDesiredPublisher.publish(desiredZ);
+		    zDesiredAnglePublisher.publish(desiredYaw);
 
 //ROS_INFO("Publishing.");
 		    pidManager_.publish();
 		    loop_rate.sleep();
 
-		    while(!isAllCloseToZero(pidManager_.getLastState()))
+		    while(!isAllCloseToZero(desiredX, desiredY, desiredZ, desiredYaw))
 		    {
 //ROS_INFO("Publishing.");
 			pidManager_.publish();
@@ -193,6 +198,16 @@ ROS_INFO("----------->Executing point with index %d with pose [%f, %f, %f] with 
 		    }
 		}
 	    }
+ROS_INFO("----------->Trajectory executed.");
+
+int counter = 0;
+	while(counter++ < 100)
+	{
+			pidManager_.publish();
+			loop_rate.sleep();
+		    }
+
+
 
 	    std_msgs::Bool toPublish;
 	    toPublish.data = false;
@@ -203,19 +218,19 @@ ROS_INFO("----------->Executing point with index %d with pose [%f, %f, %f] with 
 	    created=false;
 	}
 
-	bool isAllCloseToZero(geometry_msgs::Twist cmd)
+	bool isAllCloseToZero(double desX, double desY, double desZ, double desYaw)
 	{
-	    if(!isValueCloseToZero(cmd.linear.x))
+	    //if(!isValueCloseToZero(pidManager_.getLastOdomX() - desX))
+		//return false;
+
+	    if(!isValueCloseToZero(pidManager_.getLastOdomY() - desY))
 		return false;
 
-	    if(!isValueCloseToZero(cmd.linear.y))
-		return false;
+	    //if(!isValueCloseToZero(pidManager_.getLastOdomZ() - desZ))
+		//return false;
 
-	    if(!isValueCloseToZero(cmd.linear.z))
-		return false;
-
-	    if(!isValueCloseToZero(cmd.angular.z))
-		return false;
+	    //if(!isValueCloseToZero(pidManager_.getLastOdomYaw() - desYaw))
+		//return false;
 
 	    return true;
 	}
