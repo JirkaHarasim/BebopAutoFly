@@ -248,7 +248,7 @@ private:
 
 	void publishActualDesiredState(geometry_msgs::PoseStamped &pose_in, int k)
 	{
-	    pose_in.header.stamp = ros::Time::now() - ros::Duration(0.1);
+	    pose_in.header.stamp = ros::Time::now() - ros::Duration(0.27);
 	    geometry_msgs::PoseStamped pose_out;
 	    try
 	    {
@@ -257,6 +257,7 @@ private:
 	    catch (tf::TransformException ex)
 	    {
   		ROS_ERROR("%s",ex.what());
+		return;
 	    }
 
 	    tf::Quaternion rotation(pose_out.pose.orientation.x, pose_out.pose.orientation.y, pose_out.pose.orientation.z, pose_out.pose.orientation.w);

@@ -130,7 +130,7 @@ private:
     geometry_msgs::PoseStamped pose_in;
     geometry_msgs::PoseStamped pose_out;
 
-    pose_in.header.stamp = ros::Time::now() - ros::Duration(0.05);
+    pose_in.header.stamp = ros::Time::now() - ros::Duration(0.25);
     pose_in.header.frame_id = "base_link";
 
     pose_in.pose.position.x = input.transforms[0].translation.x;
