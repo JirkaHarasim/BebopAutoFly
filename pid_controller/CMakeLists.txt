@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
   std_msgs
   message_generation
+	tf
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

@@ -119,7 +119,6 @@ ros::ServiceClient trajectoryTransformClient =
   geometry_msgs::PoseStamped pose;
   pose.header.stamp = start;
   pose.pose.orientation.w = 1;
-  pose.pose.position.z = 1;
   path.poses.push_back(pose);
 
   pose.pose.position.y = 1;

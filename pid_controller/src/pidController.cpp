@@ -3,9 +3,11 @@
 #include <pthread.h>
 #include "std_msgs/Bool.h"
 #include "tf/transform_datatypes.h"
+#include "tf/transform_listener.h"
 #include <trajectory_msgs/MultiDOFJointTrajectory.h>
 #include <action_controller/MultiDofFollowJointTrajectoryAction.h>
 #include <geometry_msgs/Twist.h>
+#include "geometry_msgs/PoseStamped.h"
 #include "pidManager.cpp"
 
 class PidController{
@@ -66,6 +68,7 @@ private:
 	geometry_msgs::Transform_<std::allocator<void> > lastPosition;
 	pthread_t trajectoryExecutor;
 	bool created;
+	tf::TransformListener listener;
 
 	ros::Publisher pidEnable;
 	ros::Publisher xDesiredPublisher;
@@ -78,6 +81,11 @@ private:
 	std::string yDesiredTopicName;
 	std::string zDesiredTopicName;
 	std::string zDesiredAngleTopicName;
+
+	double desiredX;
+	double desiredY;
+	double desiredZ;
+	double desiredYaw;
 
 	bool has_active_goal_;
 	GoalHandle active_goal_;
@@ -153,9 +161,10 @@ private:
 
 	void executeTrajectory()
         {
-ROS_INFO("----------->Executing trajectory with %d points on joint %s.", (int)toExecute.points.size(), toExecute.joint_names[0].c_str());
+	    ROS_INFO("----------->Executing trajectory with %d points on joint %s.", (int)toExecute.points.size(), toExecute.joint_names[0].c_str());
 
-		ros::Rate loop_rate(20);
+	    ros::Rate loop_rate(20);
+	    geometry_msgs::PoseStamped pose_in;
 	    if(toExecute.joint_names[0]=="Base" && toExecute.points.size()>0)
 	    {
 		std_msgs::Bool toPublish;
@@ -166,48 +175,38 @@ ROS_INFO("----------->Executing trajectory with %d points on joint %s.", (int)to
 		{
 		    geometry_msgs::Transform_<std::allocator<void> > transform = toExecute.points[k].transforms[0];
 
-		    tf::Quaternion rotation(transform.rotation.x,
-				transform.rotation.y,
-				transform.rotation.z,
-				transform.rotation.w);
-		    double roll, pitch, desiredYaw;
-		    tf::Matrix3x3 m(rotation);
-		    m.getRPY(roll, pitch, desiredYaw);
+		    pose_in.header.frame_id = "odom";
 
-		    double desiredX, desiredY, desiredZ;
-		    desiredX = transform.translation.x;
-		    desiredY = transform.translation.y;
-		    desiredZ = transform.translation.z;
+		    pose_in.pose.position.x = transform.translation.x;
+		    pose_in.pose.position.y = transform.translation.y;
+		    pose_in.pose.position.z = transform.translation.z;
 
-ROS_INFO("----------->Executing point with index %d with pose [%f, %f, %f] with %f rads.", (int)k, desiredX, desiredY, desiredZ, desiredYaw);
+		    pose_in.pose.orientation = transform.rotation;
 
-		    xDesiredPublisher.publish(desiredX);
-		    yDesiredPublisher.publish(desiredY);
-		    zDesiredPublisher.publish(desiredZ);
-		    zDesiredAnglePublisher.publish(desiredYaw);
-
-//ROS_INFO("Publishing.");
-		    pidManager_.publish();
+    
+		    publishActualDesiredState(pose_in, k);
 		    loop_rate.sleep();
+		    pidManager_.publish();
+
 
 		    while(!isAllCloseToZero(desiredX, desiredY, desiredZ, desiredYaw))
 		    {
-//ROS_INFO("Publishing.");
-			pidManager_.publish();
+			publishActualDesiredState(pose_in, k);
 			loop_rate.sleep();
+			pidManager_.publish();
+
 		    }
 		}
 	    }
-ROS_INFO("----------->Trajectory executed.");
+	    ROS_INFO("----------->Trajectory executed.");
 
-int counter = 0;
-	while(counter++ < 100)
-	{
-			pidManager_.publish();
-			loop_rate.sleep();
-		    }
-
-
+	    int counter = 0;
+	    while(counter++ < 100)
+	    {
+		publishActualDesiredState(pose_in, -1);
+		pidManager_.publish();
+		loop_rate.sleep();
+	    }
 
 	    std_msgs::Bool toPublish;
 	    toPublish.data = false;
@@ -220,16 +219,16 @@ int counter = 0;
 
 	bool isAllCloseToZero(double desX, double desY, double desZ, double desYaw)
 	{
-	    //if(!isValueCloseToZero(pidManager_.getLastOdomX() - desX))
+	    //if(!isValueCloseToZero(desX))
 		//return false;
 
-	    if(!isValueCloseToZero(pidManager_.getLastOdomY() - desY))
+	    if(!isValueCloseToZero(desY))
 		return false;
 
-	    //if(!isValueCloseToZero(pidManager_.getLastOdomZ() - desZ))
+	    //if(!isValueCloseToZero(desZ))
 		//return false;
 
-	    //if(!isValueCloseToZero(pidManager_.getLastOdomYaw() - desYaw))
+	    //if(!isValueCloseToZero(desYaw))
 		//return false;
 
 	    return true;
@@ -245,6 +244,36 @@ int counter = 0;
 		return false;
 
 	    return true;
+	}
+
+	void publishActualDesiredState(geometry_msgs::PoseStamped &pose_in, int k)
+	{
+	    pose_in.header.stamp = ros::Time::now() - ros::Duration(0.1);
+	    geometry_msgs::PoseStamped pose_out;
+	    try
+	    {
+		listener.transformPose("base_link", pose_in, pose_out);
+	    }
+	    catch (tf::TransformException ex)
+	    {
+  		ROS_ERROR("%s",ex.what());
+	    }
+
+	    tf::Quaternion rotation(pose_out.pose.orientation.x, pose_out.pose.orientation.y, pose_out.pose.orientation.z, pose_out.pose.orientation.w);
+	    double roll, pitch;
+	    tf::Matrix3x3 m(rotation);
+	    m.getRPY(roll, pitch, desiredYaw);
+
+	    desiredX = pose_out.pose.position.x;
+	    desiredY = pose_out.pose.position.y;
+	    desiredZ = pose_out.pose.position.z;
+
+	    ROS_INFO("----------->Executing point with index %d with pose [%f, %f, %f] with %f rads.", (int)k, desiredX, desiredY, desiredZ, desiredYaw);
+
+	    xDesiredPublisher.publish(desiredX);
+	    yDesiredPublisher.publish(desiredY);
+	    zDesiredPublisher.publish(desiredZ);
+	    zDesiredAnglePublisher.publish(desiredYaw);
 	}
 };
 

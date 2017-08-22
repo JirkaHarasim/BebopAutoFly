@@ -56,7 +56,7 @@ public:
 
   bool getTf()
   {
-    tf::TransformListener listener;
+//    tf::TransformListener listener;
     tf::StampedTransform transform;
 
     try

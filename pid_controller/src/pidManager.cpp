@@ -8,11 +8,9 @@
 class PidManager
 {
     public:
-    void odomCallback(const nav_msgs::Odometry::ConstPtr& odom)
+  /*  void odomCallback(const nav_msgs::Odometry::ConstPtr& odom)
     { 
-	ros::Time t = ros::Time::now();
-	if (lastTime + ros::Duration(0.1) > t)
-		return;
+	
 
 	tf::Quaternion rotation(odom->pose.pose.orientation.x,
 				odom->pose.pose.orientation.y,
@@ -22,18 +20,13 @@ class PidManager
 	tf::Matrix3x3 m(rotation);
 	m.getRPY(roll, pitch, yaw);
 
-	lastOdomX = odom->pose.pose.position.x;
-	lastOdomY = odom->pose.pose.position.y;
-	lastOdomZ = odom->pose.pose.position.z;
-	lastOdomYaw = yaw;
-
-	xOdomPublisher.publish(lastOdomX);
-	yOdomPublisher.publish(lastOdomY);
-	zOdomPublisher.publish(lastOdomZ);
-	zOdomAnglePublisher.publish(lastOdomYaw);
+	xOdomPublisher.publish(0.0);
+	yOdomPublisher.publish(0.0);
+	zOdomPublisher.publish(0.0);
+	zOdomAnglePublisher.publish(0.0);
 
 	ROS_INFO("Actual pose and angle was [%f, %f, %f] with %f rads.", odom->pose.pose.position.x, odom->pose.pose.position.y, odom->pose.pose.position.z, yaw);
-    }
+    }*/
 
     void xCallback(const std_msgs::Float64::ConstPtr& xCommand)
     { 
@@ -71,7 +64,7 @@ class PidManager
 	node.param<std::string>("pid_manager_namespace", ns, "pid_manager");
 	ns = ns + "/";
 
-	node.param<std::string>("pid_odom_subscribe_topic", odomSubscribeTopic, ns + "odom");
+	//node.param<std::string>("pid_odom_subscribe_topic", odomSubscribeTopic, ns + "odom");
 	node.param<std::string>("pid_x_twist_subscribe_topic", xTwistSubscribeTopic, ns + "x_twist");
 	node.param<std::string>("pid_y_twist_subscribe_topic", yTwistSubscribeTopic, ns + "y_twist");
 	node.param<std::string>("pid_z_twist_subscribe_topic", zTwistSubscribeTopic, ns + "z_twist");
@@ -103,9 +96,14 @@ class PidManager
 	    ROS_INFO("Publishing [%f, %f, %f, %f].", commandToSend.linear.x, commandToSend.linear.y, commandToSend.linear.z, commandToSend.angular.z);
 	}
 	twistPublisher.publish(commandToSend);
+	
+	xOdomPublisher.publish(0.0);
+	yOdomPublisher.publish(0.0);
+	zOdomPublisher.publish(0.0);
+	zOdomAnglePublisher.publish(0.0);
     }
 
-    double getLastOdomX()
+    /*double getLastOdomX()
     {
 	return lastOdomX;
     }
@@ -123,7 +121,7 @@ class PidManager
     double getLastOdomYaw()
     {
 	return lastOdomYaw;
-    }
+    }*/
 
     private:
     ros::Publisher twistPublisher;
@@ -132,22 +130,22 @@ class PidManager
     ros::Publisher zOdomPublisher;
     ros::Publisher zOdomAnglePublisher;
 
-    ros::Subscriber odomSubscriber;
+   // ros::Subscriber odomSubscriber;
     ros::Subscriber xTwistSubscriber;
     ros::Subscriber yTwistSubscriber;
     ros::Subscriber zTwistSubscriber;
     ros::Subscriber zTwistAngleSubscriber;
 
-    double lastOdomX;
+ /*   double lastOdomX;
     double lastOdomY;
     double lastOdomZ;
-    double lastOdomYaw;
+    double lastOdomYaw;*/
 
     geometry_msgs::Twist commandToSend;
     bool commandChanged;
     ros::Time lastTime;
 
-    std::string odomSubscribeTopic;
+   // std::string odomSubscribeTopic;
     std::string xTwistSubscribeTopic;
     std::string yTwistSubscribeTopic;
     std::string zTwistSubscribeTopic;
@@ -161,7 +159,7 @@ class PidManager
 
     void initSubscribers(ros::NodeHandle n)
     {
-        odomSubscriber = n.subscribe(odomSubscribeTopic, 5, &PidManager::odomCallback, this);
+     //   odomSubscriber = n.subscribe(odomSubscribeTopic, 5, &PidManager::odomCallback, this);
         xTwistSubscriber = n.subscribe(xTwistSubscribeTopic, 1, &PidManager::xCallback, this);
         yTwistSubscriber = n.subscribe(yTwistSubscribeTopic, 1, &PidManager::yCallback, this);
         zTwistSubscriber = n.subscribe(zTwistSubscribeTopic, 1, &PidManager::zCallback, this);
