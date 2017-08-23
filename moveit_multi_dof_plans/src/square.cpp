@@ -52,6 +52,7 @@
 #include "trajectory_msgs/MultiDOFJointTrajectory.h"
 #include "trajectory_msgs/MultiDOFJointTrajectoryPoint.h"
 #include "moveit_multi_dof_plans/GetRobotTrajectoryFromPath.h"
+#include "moveit_multi_dof_plans/TransformTrajectory.h"
 
 int main(int argc, char **argv)
 {
@@ -104,7 +105,9 @@ ros::ServiceClient trajectoryClient =
           node_handle.serviceClient<moveit_multi_dof_plans::GetRobotTrajectoryFromPath>("get_robot_trajectory_from_path");
     ROS_INFO("Calling path to robot trajectory service.");
 
-
+  moveit_multi_dof_plans::TransformTrajectory transformTrajectory;
+ros::ServiceClient trajectoryTransformClient = 
+          node_handle.serviceClient<moveit_multi_dof_plans::TransformTrajectory>("inverse_robot_trajectory_transform");
 
   nav_msgs::Path path;
   path.header.stamp = ros::Time::now();
@@ -114,10 +117,9 @@ ros::ServiceClient trajectoryClient =
   geometry_msgs::PoseStamped pose;
   pose.header.stamp = start;
   pose.pose.orientation.w = 1;
-  pose.pose.position.z = 1;
   path.poses.push_back(pose);
 
-  for (float i = 0; i < 3.1; i += 0.2)
+  for (float i = 0; i < 2.1; i += 0.2)
   {
     pose.header.stamp = start + ros::Duration(i);
     switch(planVariant)
@@ -130,11 +132,11 @@ ros::ServiceClient trajectoryClient =
         pose.pose.position.y = -i;
       break;
     }
-ROS_INFO_NAMED("square", "Pushing [%f, %f, %f]", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+//ROS_INFO_NAMED("square", "Pushing [%f, %f, %f]", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
     path.poses.push_back(pose);
   }
 
-  for (float i = 0; i < 3.1; i += 0.2)
+  for (float i = 0; i < 2.1; i += 0.2)
   {
     pose.header.stamp = start + ros::Duration(3+i);
     switch(planVariant)
@@ -147,11 +149,11 @@ ROS_INFO_NAMED("square", "Pushing [%f, %f, %f]", pose.pose.position.x, pose.pose
         pose.pose.position.x = -i;
       break;
     }
-ROS_INFO_NAMED("square", "Pushing [%f, %f, %f]", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+//ROS_INFO_NAMED("square", "Pushing [%f, %f, %f]", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
     path.poses.push_back(pose);
   }
 
-  for (float i = 0; i < 3.1; i += 0.2)
+  for (float i = 0; i < 2.1; i += 0.2)
   {
     pose.header.stamp = start + ros::Duration(6+i);
     switch(planVariant)
@@ -164,11 +166,11 @@ ROS_INFO_NAMED("square", "Pushing [%f, %f, %f]", pose.pose.position.x, pose.pose
         pose.pose.position.y = i-3;
       break;
     }
-ROS_INFO_NAMED("square", "Pushing [%f, %f, %f]", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+//ROS_INFO_NAMED("square", "Pushing [%f, %f, %f]", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
     path.poses.push_back(pose);
   }
 
-  for (float i = 0; i < 3.1; i += 0.2)
+  for (float i = 0; i < 2.1; i += 0.2)
   {
     pose.header.stamp = start + ros::Duration(9+i);
     switch(planVariant)
@@ -181,7 +183,7 @@ ROS_INFO_NAMED("square", "Pushing [%f, %f, %f]", pose.pose.position.x, pose.pose
         pose.pose.position.x = i-3;
       break;
     }
-ROS_INFO_NAMED("square", "Pushing [%f, %f, %f]", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+//ROS_INFO_NAMED("square", "Pushing [%f, %f, %f]", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
     path.poses.push_back(pose);
   }
 
@@ -200,13 +202,30 @@ ROS_INFO_NAMED("square", "Pushing [%f, %f, %f]", pose.pose.position.x, pose.pose
 	}
 
   //robotTrajectoryMsg.multi_dof_joint_trajectory = multi;
-  displayTrajectory.trajectory.push_back(trajectoryFromPath.response.trajectory);
-  plan.trajectory_ = trajectoryFromPath.response.trajectory;
+ // displayTrajectory.trajectory.push_back(trajectoryFromPath.response.trajectory);
+//  plan.trajectory_ = trajectoryFromPath.response.trajectory;
 
   statePublisher.publish(displayTrajectory);
 
-  ROS_INFO_NAMED("square", "Visualizing plan as a trajectory");
-  visual_tools.publishText(text_pose, "Pose Goal", rvt::WHITE, rvt::XLARGE);
+transformTrajectory.request.trajectoryToTransform = trajectoryFromPath.response.trajectory;
+
+	if (trajectoryTransformClient.call(transformTrajectory))
+        {
+	    ROS_INFO("Received response.");
+    	}
+    	else
+    	{
+      	    ROS_ERROR("Failed to call service transformation trajectory.");
+	    ros::shutdown();
+	    return 1;
+	}
+
+  displayTrajectory.trajectory.push_back(transformTrajectory.response.transformedTrajectory);
+//  plan.trajectory_ = trajectoryFromPath.response.trajectory;
+
+plan.trajectory_ = transformTrajectory.response.transformedTrajectory;
+  statePublisher.publish(displayTrajectory);
+
   visual_tools.trigger();
   visual_tools.prompt("next step");
 

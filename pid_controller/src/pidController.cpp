@@ -219,14 +219,14 @@ private:
 
 	bool isAllCloseToZero(double desX, double desY, double desZ, double desYaw)
 	{
-	    //if(!isValueCloseToZero(desX))
-		//return false;
+	    if(!isValueCloseToZero(desX))
+		return false;
 
 	    if(!isValueCloseToZero(desY))
 		return false;
 
-	    //if(!isValueCloseToZero(desZ))
-		//return false;
+	    if(!isValueCloseToZero(desZ))
+		return false;
 
 	    //if(!isValueCloseToZero(desYaw))
 		//return false;
@@ -269,7 +269,7 @@ private:
 	    desiredY = pose_out.pose.position.y;
 	    desiredZ = pose_out.pose.position.z;
 
-	    ROS_INFO("----------->Executing point with index %d \n odom [] \n base_link [%f, %f, %f] with %f rads.", (int)k, 
+	    ROS_INFO("----------->Executing point with index %d \n odom [%f, %f, %f] \n base_link [%f, %f, %f] with %f rads.", (int)k, 
 		pose_in.pose.position.x, pose_in.pose.position.y, pose_in.pose.position.z,
 		desiredX, desiredY, desiredZ, desiredYaw);
 
