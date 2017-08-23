@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<launch>
+
+<param name="pid_manager_namespace" value="pid_manager" type="string"/>
+<param name="pid_controller_namespace" value="pid_controller" type="string"/>
+
+<param name="pid_odom_subscribe_topic" value="/ground_truth/state" type="string"/>
+<!--<param name="pid_x_twist_subscribe_topic" value="x_twist" type="string"/>
+<param name="pid_y_twist_subscribe_topic" value="y_twist" type="string"/>
+<param name="pid_z_twist_subscribe_topic" value="z_twist" type="string"/>
+<param name="pid_z_twist_angle_subscribe_topic" value="z_angle_twist" type="string"/>-->
+
+<param name="pid_twist_publish_topic" value="/yocs_cmd_vel_mux/pid_manager/cmd_vel" type="string"/>
+<!--<param name="pid_x_odom_publish_topic" value="x_odom" type="string"/>
+<param name="pid_y_odom_publish_topic" value="y_odom" type="string"/>
+<param name="pid_z_odom_publish_topic" value="z_odom" type="string"/>
+<param name="pid_z_odom_angle_publish_topic" value="z_angle_odom" type="string"/>-->
+
+<node pkg="pid_controller" type="pid_controller" name="pid_controller" respawn="true" output="screen"/> 
+
+<!--   <node pkg="simple_controller" type="cmd_vel_limiter" name="cmd_vel_limiter" output="screen"
+	args="/yocs_cmd_vel_mux/repeater/cmd_vel /yocs_cmd_vel_mux/adjustor/cmd_vel" /> -->
+
+
+<node name="pid_x_controller" pkg="pid" type="controller" output="screen" >
+      <param name="node_name" value="x_control_pid" />
+      <param name="Kp" value="5.0" />
+      <param name="Ki" value="0.0" />
+      <param name="Kd" value="0.1" />
+      <param name="upper_limit" value="1" />
+      <param name="lower_limit" value="-1" />
+      <param name="topic_from_plant" value="/pid_manager/x_odom" />
+      <param name="setpoint_topic" value="/pid_controller/x_desired" />
+      <param name="pid_enable_topic" value="/pid_controller/pid_enable" />
+      <param name="max_loop_frequency" value="21.0" />
+      <param name="min_loop_frequency" value="19.0" />
+      <remap from="control_effort" to="/pid_manager/x_twist" />
+     </node>
+
+
+<node name="pid_y_controller" pkg="pid" type="controller" output="screen" >
+      <param name="node_name" value="y_control_pid" />
+      <param name="Kp" value="5.0" />
+      <param name="Ki" value="0.0" />
+      <param name="Kd" value="0.1" />
+      <param name="upper_limit" value="1" />
+      <param name="lower_limit" value="-1" />
+      <param name="topic_from_plant" value="/pid_manager/y_odom" />
+      <param name="setpoint_topic" value="/pid_controller/y_desired" />
+      <param name="pid_enable_topic" value="/pid_controller/pid_enable" />
+      <param name="max_loop_frequency" value="21.0" />
+      <param name="min_loop_frequency" value="19.0" />
+      <remap from="control_effort" to="/pid_manager/y_twist" />
+     </node>
+
+
+<node name="pid_z_controller" pkg="pid" type="controller" output="screen" >
+      <param name="node_name" value="z_control_pid" />
+      <param name="Kp" value="5.0" />
+      <param name="Ki" value="0.0" />
+      <param name="Kd" value="0.1" />
+      <param name="upper_limit" value="1" />
+      <param name="lower_limit" value="-1" />
+      <param name="topic_from_plant" value="/pid_manager/z_odom" />
+      <param name="setpoint_topic" value="/pid_controller/z_desired" />
+      <param name="pid_enable_topic" value="/pid_controller/pid_enable" />
+      <param name="max_loop_frequency" value="21.0" />
+      <param name="min_loop_frequency" value="19.0" />
+      <remap from="control_effort" to="/pid_manager/z_twist" />
+     </node>
+
+</launch>
+

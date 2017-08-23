@@ -1,3 +1,4 @@
 #!/bin/bash
-roslaunch action_controller actionController.launch
+#roslaunch simple_controller simpleController.launch
+roslaunch pid_controller pidControllerReal.launch
 

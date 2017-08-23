@@ -17,7 +17,7 @@
    -model quadrotor"
      respawn="false" output="screen"/>
 
-<node pkg="testing" type="frodopathy" name="frodopathy"
+<node pkg="moveit_multi_dof_plans" type="frodopathy" name="frodopathy"
 	args="/ground_truth/state /frodopathy"/>
      
 <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ></node>
@@ -37,8 +37,8 @@
      <param name="tf_prefix" value="ground_truth" unless="$(arg use_ground_truth_for_tf)" />
    </node>
 
-   <node pkg="testing" type="cmdvelrepeater" name="cmdvelrepeater"
-	args="/cmd_vel_to_repeat /yocs_cmd_vel_mux/repeater/cmd_vel" />
+   <!--<node pkg="simple_controller" type="cmd_vel_repeater" name="cmdvelrepeater"
+	args="/cmd_vel_to_repeat /yocs_cmd_vel_mux/repeater/cmd_vel" /> -->
 
    <node pkg="topic_tools" type="relay" name="cmdvel_relay"
 	args="/yocs_cmd_vel_mux/cmd_vel /cmd_vel" />
@@ -55,6 +55,11 @@
    <!--<param name="compensationX" value="-0.02" type="double"/>
    <param name="compensationY" value="-0.07" type="double"/>-->
 
+   <node name="throttle" pkg="topic_tools" type="throttle" 
+         args="messages /ground_truth/state 10.0" />
+
+   <node name="throttle_tf" pkg="topic_tools" type="throttle" 
+         args="messages /tf 20.0" />
 
  <!--   <node pkg="testing" type="cmdveladjustor" name="cmd_vel_adjustor" output="screen"
 	args="/yocs_cmd_vel_mux/cmd_vel /cmd_vel" />

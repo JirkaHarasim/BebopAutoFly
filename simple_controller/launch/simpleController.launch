@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+
+<param name="simple_controller_rotation" value="7.0" type="double"/>
+<param name="simple_controller_movement" value="0.4" type="double"/>
+
+<node pkg="simple_controller" type="simple_controller" name="simple_controller" respawn="true" output="screen"/> 
+
+    <!--needed to continuously publish the command to move the drone from the simple controller-->
+   <node pkg="simple_controller" type="cmd_vel_repeater" name="cmd_vel_repeater"
+	args="/cmd_vel_to_repeat /yocs_cmd_vel_mux/repeater/cmd_vel" />
+
+   <node pkg="simple_controller" type="cmd_vel_adjustor" name="cmd_vel_adjustor" output="screen"
+	args="/yocs_cmd_vel_mux/repeater/cmd_vel /yocs_cmd_vel_mux/adjustor/cmd_vel" /> 
+
+<!--   <node pkg="simple_controller" type="cmd_vel_limiter" name="cmd_vel_limiter" output="screen"
+	args="/yocs_cmd_vel_mux/repeater/cmd_vel /yocs_cmd_vel_mux/adjustor/cmd_vel" /> -->
+
+</launch>

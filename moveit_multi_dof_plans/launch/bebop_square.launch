@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+<param name="plan_variant" value="2" type="int"/>
+  <node name="square" pkg="testing" type="square" respawn="false" output="screen">
+  </node>
+
+<node pkg="testing" type="robottrajectory" name="path_to_trajectory" output="screen"/>
+</launch>
