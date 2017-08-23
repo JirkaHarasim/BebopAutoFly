@@ -27,12 +27,14 @@
 	args="/ekf/dso_smooth /dso_transformed"/>
 
 <node pkg="testing" type="frodopathy" name="frodopathy_dso_transformed"
-	args="/dso_transformed /dso_transformed/frodopathy"/>
+	args="/dso_transformed /dso_transformed/frodopathy"/> 
 
   <include file="$(find robot_localization)/launch/ukf_bebop.launch" />
 
+<!-- <include file="$(find robot_localization)/launch/combine_bebop.launch" /> -->
+
 <node pkg="testing" type="frodopathy" name="frodopathy_odom_combined"
-	args="/ukf/odometry /ukf/frodopathy"/>
+	args="/ukf/odometry /ukf/frodopathy"/> 
 
  <!-- controller runs separately to clearly see what is happening there. 
 <node pkg="action_controller" type="action_controller" name="action_controller" respawn="true"/> -->
