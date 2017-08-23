@@ -121,10 +121,11 @@ ros::ServiceClient trajectoryTransformClient =
   pose.pose.orientation.w = 1;
   path.poses.push_back(pose);
 
+ /* pose.pose.position.x = 1;
   pose.pose.position.y = 1;
   path.poses.push_back(pose);
   
-/*  pose.pose.position.x = 0;
+  pose.pose.position.x = 0;
   path.poses.push_back(pose);
 
   pose.pose.position.x = 1;
@@ -132,8 +133,8 @@ ros::ServiceClient trajectoryTransformClient =
 
   pose.pose.position.x = 0;
   path.poses.push_back(pose);
+*/
 
-/*
   for (float i = 0; i <= 3; i += 0.2)
   {
     // x, y = i, -i (4 possibilities)
@@ -234,7 +235,7 @@ ros::ServiceClient trajectoryTransformClient =
     }
 
     path.poses.push_back(pose);
-  }*/
+  }
 
   trajectoryFromPath.request.path = path;
   trajectoryFromPath.request.joint_names.push_back("Base");

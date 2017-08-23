@@ -201,7 +201,7 @@ private:
 	    ROS_INFO("----------->Trajectory executed.");
 
 	    int counter = 0;
-	    while(counter++ < 100)
+	    while(counter++ < 1000)
 	    {
 		publishActualDesiredState(pose_in, -1);
 		pidManager_.publish();
@@ -269,7 +269,9 @@ private:
 	    desiredY = pose_out.pose.position.y;
 	    desiredZ = pose_out.pose.position.z;
 
-	    ROS_INFO("----------->Executing point with index %d with pose [%f, %f, %f] with %f rads.", (int)k, desiredX, desiredY, desiredZ, desiredYaw);
+	    ROS_INFO("----------->Executing point with index %d \n odom [] \n base_link [%f, %f, %f] with %f rads.", (int)k, 
+		pose_in.pose.position.x, pose_in.pose.position.y, pose_in.pose.position.z,
+		desiredX, desiredY, desiredZ, desiredYaw);
 
 	    xDesiredPublisher.publish(desiredX);
 	    yDesiredPublisher.publish(desiredY);
