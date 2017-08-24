@@ -171,7 +171,8 @@ private:
 		toPublish.data = true;
 		pidEnable.publish(toPublish);
 
-		for(int k=0; k<toExecute.points.size(); k++)
+		int lastIndex =toExecute.points.size()-1 ;
+		for(int k = 0; k <= lastIndex; k++)
 		{
 		    geometry_msgs::Transform_<std::allocator<void> > transform = toExecute.points[k].transforms[0];
 
@@ -183,30 +184,37 @@ private:
 
 		    pose_in.pose.orientation = transform.rotation;
 
-    
-		    publishActualDesiredState(pose_in, k);
-		    loop_rate.sleep();
-		    pidManager_.publish();
+    		    if (k == lastIndex)
+		    {
+			ROS_INFO("----------->Executing last point (hover).");
+		    }
+		
+		    // inits the desired positions    
+		    while(!publishActualDesiredState(pose_in, k))
+		    {
+			loop_rate.sleep();
+			pidManager_.publish();
+		    }
 
-
-		    while(!isAllCloseToZero(desiredX, desiredY, desiredZ, desiredYaw))
+		    // waits until close to the desired pose
+		    while(!isAllCloseToZero(desiredX, desiredY, desiredZ, desiredYaw) && k != lastIndex)
 		    {
 			publishActualDesiredState(pose_in, k);
 			loop_rate.sleep();
 			pidManager_.publish();
+		    }
 
+		    // hovers over the last pose
+		    int counter = 0;
+		    while(k == lastIndex && counter++ < 1000)
+		    {
+			publishActualDesiredState(pose_in, k);
+			pidManager_.publish();
+			loop_rate.sleep();
 		    }
 		}
 	    }
 	    ROS_INFO("----------->Trajectory executed.");
-
-	    int counter = 0;
-	    while(counter++ < 1000)
-	    {
-		publishActualDesiredState(pose_in, -1);
-		pidManager_.publish();
-		loop_rate.sleep();
-	    }
 
 	    std_msgs::Bool toPublish;
 	    toPublish.data = false;
@@ -219,13 +227,13 @@ private:
 
 	bool isAllCloseToZero(double desX, double desY, double desZ, double desYaw)
 	{
-	    if(!isValueCloseToZero(desX))
+	    if(!isValueCloseToZero(desX, 0.1))
 		return false;
 
-	    if(!isValueCloseToZero(desY))
+	    if(!isValueCloseToZero(desY, 0.1))
 		return false;
 
-	    if(!isValueCloseToZero(desZ))
+	    if(!isValueCloseToZero(desZ, 0.4))
 		return false;
 
 	    //if(!isValueCloseToZero(desYaw))
@@ -234,9 +242,8 @@ private:
 	    return true;
 	}
 
-	bool isValueCloseToZero(double value)
+	bool isValueCloseToZero(double value, double limit)
 	{
-	    double limit = 0.1;
 	    if (value > 0 && value > limit)
 		return false;
 
@@ -246,7 +253,7 @@ private:
 	    return true;
 	}
 
-	void publishActualDesiredState(geometry_msgs::PoseStamped &pose_in, int k)
+	bool publishActualDesiredState(geometry_msgs::PoseStamped &pose_in, int k)
 	{
 	    pose_in.header.stamp = ros::Time::now() - ros::Duration(0.27);
 	    geometry_msgs::PoseStamped pose_out;
@@ -257,7 +264,7 @@ private:
 	    catch (tf::TransformException ex)
 	    {
   		ROS_ERROR("%s",ex.what());
-		return;
+		return false;
 	    }
 
 	    tf::Quaternion rotation(pose_out.pose.orientation.x, pose_out.pose.orientation.y, pose_out.pose.orientation.z, pose_out.pose.orientation.w);
@@ -277,6 +284,8 @@ private:
 	    yDesiredPublisher.publish(desiredY);
 	    zDesiredPublisher.publish(desiredZ);
 	    zDesiredAnglePublisher.publish(desiredYaw);
+
+	    return true;
 	}
 };
 

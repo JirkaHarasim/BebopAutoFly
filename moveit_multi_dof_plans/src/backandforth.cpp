@@ -135,7 +135,7 @@ ros::ServiceClient trajectoryTransformClient =
   path.poses.push_back(pose);
 */
 
-  for (float i = 0; i < 1.05; i += 0.2)
+  for (float i = 0; i < 2.05; i += 0.2)
   {
     // x, y = i, -i (4 possibilities)
     pose.header.stamp = start + ros::Duration(i);
