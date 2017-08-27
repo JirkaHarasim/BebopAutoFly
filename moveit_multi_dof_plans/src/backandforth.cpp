@@ -120,7 +120,7 @@ ros::ServiceClient trajectoryTransformClient =
   pose.header.stamp = start;
   pose.pose.orientation.w = 1;
   path.poses.push_back(pose);
-
+/*
 double v = 0.4;
 switch(planVariant)
     {
@@ -144,7 +144,7 @@ switch(planVariant)
   
   path.poses.push_back(pose);
   
- /* pose.pose.position.x = 0;
+  pose.pose.position.x = 0;
   path.poses.push_back(pose);
 
   pose.pose.position.x = 1;
@@ -153,7 +153,7 @@ switch(planVariant)
   pose.pose.position.x = 0;
   path.poses.push_back(pose);
 
-
+*/
   for (float i = 0; i < 2.05; i += 0.2)
   {
     // x, y = i, -i (4 possibilities)
@@ -178,7 +178,7 @@ switch(planVariant)
     }
     
     path.poses.push_back(pose);
-  }*/
+  }
 /*
   for (float i = 0; i <= 3; i += 0.2)
   {
