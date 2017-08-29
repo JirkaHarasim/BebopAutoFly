@@ -21,12 +21,12 @@
 <!--   <node pkg="simple_controller" type="cmd_vel_limiter" name="cmd_vel_limiter" output="screen"
 	args="/yocs_cmd_vel_mux/repeater/cmd_vel /yocs_cmd_vel_mux/adjustor/cmd_vel" /> -->
 
-
+<!-- 0.09 0.04 0.1 -->
 <node name="pid_x_controller" pkg="pid" type="controller" output="screen" >
       <param name="node_name" value="x_control_pid" />
-      <param name="Kp" value="0.09" />
-      <param name="Ki" value="0.04" />
-      <param name="Kd" value="0.10" />
+      <param name="Kp" value="0.25" />
+      <param name="Ki" value="0.05" />
+      <param name="Kd" value="0.5" />
       <param name="upper_limit" value="0.5" />
       <param name="lower_limit" value="-0.5" />
       <param name="topic_from_plant" value="/pid_manager/x_odom" />
