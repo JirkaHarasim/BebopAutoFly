@@ -24,9 +24,9 @@
 <!-- 0.09 0.04 0.1 -->
 <node name="pid_x_controller" pkg="pid" type="controller" output="screen" >
       <param name="node_name" value="x_control_pid" />
-      <param name="Kp" value="0.25" />
-      <param name="Ki" value="0.05" />
-      <param name="Kd" value="0.5" />
+      <param name="Kp" value="0.15" />
+      <param name="Ki" value="0.03" />
+      <param name="Kd" value="0.35" />
       <param name="upper_limit" value="0.5" />
       <param name="lower_limit" value="-0.5" />
       <param name="topic_from_plant" value="/pid_manager/x_odom" />
@@ -42,9 +42,9 @@
 <!-- trajectory execution 0.25, 0.05, 0.5 max 0.5-->
 <node name="pid_y_controller" pkg="pid" type="controller" output="screen" >
       <param name="node_name" value="y_control_pid" />
-      <param name="Kp" value="0.25" /> 
-      <param name="Ki" value="0.05" />
-      <param name="Kd" value="0.5" />
+      <param name="Kp" value="0.15" /> 
+      <param name="Ki" value="0.03" />
+      <param name="Kd" value="0.35" />
       <param name="upper_limit" value="0.5" />
       <param name="lower_limit" value="-0.5" />
       <param name="topic_from_plant" value="/pid_manager/y_odom" />

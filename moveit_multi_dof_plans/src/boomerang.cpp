@@ -53,9 +53,6 @@
 #include "trajectory_msgs/MultiDOFJointTrajectoryPoint.h"
 #include "trajectory_msgs/MultiDOFJointTrajectory.h"
 #include "trajectory_msgs/MultiDOFJointTrajectoryPoint.h"
-#include "moveit_multi_dof_plans/TransformTrajectory.h"
-#include "moveit_multi_dof_plans/InverseTransformTrajectory.h"
-
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "bebop_boomerang");
@@ -94,11 +91,6 @@ int main(int argc, char **argv)
   move_group.setPlanningTime(2);
   move_group.setWorkspace(-10, -10, 0.7, 10, 10, 1.3);
 
-  moveit_multi_dof_plans::TransformTrajectory transformTrajectory;
-ros::ServiceClient trajectoryTransformClient = 
-          node_handle.serviceClient<moveit_multi_dof_plans::TransformTrajectory>("robot_trajectory_transform");
-  ROS_INFO_NAMED("backtracker", "Service transform trajectory registered.");
-
   visual_tools.trigger();
   visual_tools.prompt("next step");
   
@@ -127,22 +119,6 @@ ros::ServiceClient trajectoryTransformClient =
   {
      my_plan.trajectory_.multi_dof_joint_trajectory.points[i].time_from_start = ros::Duration(0.2*i);
   }
-
-transformTrajectory.request.trajectoryToTransform = my_plan.trajectory_;
-
-	if (trajectoryTransformClient.call(transformTrajectory))
-        {
-	    ROS_INFO("Received response.");
-    	}
-    	else
-    	{
-      	    ROS_ERROR("Failed to call service transformation trajectory.");
-	    ros::shutdown();
-	    return 1;
-	}
-
-
-  my_plan.trajectory_ = transformTrajectory.response.transformedTrajectory;
 
   visual_tools.publishTrajectoryLine(my_plan.trajectory_, joint_model_group);
 

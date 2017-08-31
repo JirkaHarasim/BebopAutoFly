@@ -159,11 +159,11 @@ ros::ServiceClient trajectoryTransformClient =
     switch(planVariant)
     {
       case 1:
-        pose.pose.position.x = 3-i;
+        pose.pose.position.x = 2-i;
       break; 
 
       case 2:
-        pose.pose.position.y = i-3;
+        pose.pose.position.y = i-2;
       break;
     }
 //ROS_INFO_NAMED("square", "Pushing [%f, %f, %f]", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
@@ -176,11 +176,11 @@ ros::ServiceClient trajectoryTransformClient =
     switch(planVariant)
     {
       case 1:
-        pose.pose.position.y = 3-i;
+        pose.pose.position.y = 2-i;
       break; 
 
       case 2:
-        pose.pose.position.x = i-3;
+        pose.pose.position.x = i-2;
       break;
     }
 //ROS_INFO_NAMED("square", "Pushing [%f, %f, %f]", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);

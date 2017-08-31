@@ -163,7 +163,7 @@ private:
         {
 	    ROS_INFO("----------->Executing trajectory with %d points on joint %s.", (int)toExecute.points.size(), toExecute.joint_names[0].c_str());
 
-	    ros::Rate loop_rate(20);
+	    ros::Rate loop_rate(10);
 	    geometry_msgs::PoseStamped pose_in;
 	    if(toExecute.joint_names[0]=="Base" && toExecute.points.size()>0)
 	    {
@@ -255,7 +255,7 @@ private:
 
 	bool publishActualDesiredState(geometry_msgs::PoseStamped &pose_in, int k)
 	{
-	    pose_in.header.stamp = ros::Time::now() - ros::Duration(0.27);
+	    pose_in.header.stamp = ros::Time::now() - ros::Duration(0.30);
 	    geometry_msgs::PoseStamped pose_out;
 	    try
 	    {

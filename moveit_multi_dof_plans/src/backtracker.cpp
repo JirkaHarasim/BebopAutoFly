@@ -52,8 +52,6 @@
 #include "trajectory_msgs/MultiDOFJointTrajectory.h"
 #include "trajectory_msgs/MultiDOFJointTrajectoryPoint.h"
 #include "moveit_multi_dof_plans/GetRobotTrajectoryFromPath.h"
-#include "moveit_multi_dof_plans/TransformTrajectory.h"
-#include "moveit_multi_dof_plans/InverseTransformTrajectory.h"
 
 nav_msgs::Path path;
 
@@ -160,10 +158,6 @@ ros::ServiceClient trajectoryClient =
           node_handle.serviceClient<moveit_multi_dof_plans::GetRobotTrajectoryFromPath>("get_robot_trajectory_from_path");
   ROS_INFO_NAMED("backtracker", "Service trajectory from path registered.");
 
-  moveit_multi_dof_plans::TransformTrajectory transformTrajectory;
-ros::ServiceClient trajectoryTransformClient = 
-          node_handle.serviceClient<moveit_multi_dof_plans::TransformTrajectory>("robot_trajectory_transform");
-  ROS_INFO_NAMED("backtracker", "Service transform trajectory registered.");
 
  /* nav_msgs::Path path;
   path.header.stamp = ros::Time::now();
@@ -198,29 +192,16 @@ ros::ServiceClient trajectoryTransformClient =
 	    return 1;
 	}
 
-  transformTrajectory.request.trajectoryToTransform = trajectoryFromPath.response.trajectory;
-
-	if (trajectoryTransformClient.call(transformTrajectory))
-        {
-	    ROS_INFO("Received response.");
-    	}
-    	else
-    	{
-      	    ROS_ERROR("Failed to call service transformation trajectory.");
-	    ros::shutdown();
-	    return 1;
-	}
-
 
   //robotTrajectoryMsg.multi_dof_joint_trajectory = multi;
   displayTrajectory.trajectory.push_back(trajectoryFromPath.response.trajectory);
 
-transformTrajectory.response.transformedTrajectory.multi_dof_joint_trajectory.points[0].transforms[0].rotation.w = 1;
-transformTrajectory.response.transformedTrajectory.multi_dof_joint_trajectory.points[0].transforms[0].rotation.x = 0;
-transformTrajectory.response.transformedTrajectory.multi_dof_joint_trajectory.points[0].transforms[0].rotation.y = 0;
-transformTrajectory.response.transformedTrajectory.multi_dof_joint_trajectory.points[0].transforms[0].rotation.z = 0;
+//transformTrajectory.response.transformedTrajectory.multi_dof_joint_trajectory.points[0].transforms[0].rotation.w = 1;
+//transformTrajectory.response.transformedTrajectory.multi_dof_joint_trajectory.points[0].transforms[0].rotation.x = 0;
+//transformTrajectory.response.transformedTrajectory.multi_dof_joint_trajectory.points[0].transforms[0].rotation.y = 0;
+//transformTrajectory.response.transformedTrajectory.multi_dof_joint_trajectory.points[0].transforms[0].rotation.z = 0;
 
-  backtrackingPlan.trajectory_ = transformTrajectory.response.transformedTrajectory;
+  backtrackingPlan.trajectory_ = trajectoryFromPath.response.trajectory;
 
   statePublisher.publish(displayTrajectory);
 
