@@ -8,6 +8,10 @@
     <arg name="hull" default="1" />
     <!-- speed settings: 1 = indoor flight, 0 = outdoor flight -->
     <arg name="outdoorSpeed" default="1" />
+    <!-- wifi channel to connect to. -->
+    <arg name="wifiChannel" default="12" />
+
+
 
     <!-- bebop driver -->
     <arg name="config_file" default="$(find bebop_driver)/config/defaults.yaml" />
@@ -19,6 +23,7 @@
 	    <param name="sync_time" value="true" />
             <param name="SpeedSettingsHullProtectionPresent" value="$(arg hull)" />
             <param name="SpeedSettingsOutdoorOutdoor" value="$(arg outdoorSpeed)" />
+            <param name="NetworkSettingsWifiSelectionChannel" value="$(arg wifiChannel)" />
             <rosparam command="load" file="$(arg config_file)" />
         </node>
         <include file="$(find bebop_description)/launch/description.launch" />
