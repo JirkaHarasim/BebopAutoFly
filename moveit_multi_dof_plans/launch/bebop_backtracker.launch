@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
-  <param name="path_to_backtrack_topic" value="/bebop/frodopathy" type="str"/>
+  <param name="path_to_backtrack_topic" value="/drone/frodopathy" type="str"/> <!--/bebop/frodopathy;;Bebop-->
  <param name="planning_group" value="BebopAndKinect" type="str"/> <!--BebopAndKinect;;Bebop-->
 
   <node name="backtracker" pkg="moveit_multi_dof_plans" type="backtracker" respawn="false" output="screen"/>
