@@ -114,9 +114,10 @@ int main(int argc, char **argv)
   ros::AsyncSpinner spinner(1);
   spinner.start();
 
-  static const std::string PLANNING_GROUP = "Bebop";//AndKinect
+   std::string planningGroupName;
+    node_handle.param<std::string>("planning_group", planningGroupName, "Bebop");//AndKinect
 
-  moveit::planning_interface::MoveGroupInterface move_group(PLANNING_GROUP);
+  moveit::planning_interface::MoveGroupInterface move_group(planningGroupName);
 
   namespace rvt = rviz_visual_tools;
   moveit_visual_tools::MoveItVisualTools visual_tools("odom");

@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 <param name="plan_variant" value="1" type="int"/>
+ <param name="planning_group" value="BebopAndKinect" type="str"/> <!--BebopAndKinect;;Bebop-->
   <node name="square" pkg="moveit_multi_dof_plans" type="square" respawn="false" output="screen"/>
 
 <node pkg="moveit_multi_dof_plans" type="trajectorytransformer" name="trajectory_transformer" output="screen"/>

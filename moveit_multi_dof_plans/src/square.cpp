@@ -68,12 +68,13 @@ int main(int argc, char **argv)
     return 0;
   }
 
+   std::string planningGroupName;
+    node_handle.param<std::string>("planning_group", planningGroupName, "Bebop");
+
   ros::AsyncSpinner spinner(1);
   spinner.start();
 
-  static const std::string PLANNING_GROUP = "Bebop";//"BebopAndKinect";
-
-  moveit::planning_interface::MoveGroupInterface move_group(PLANNING_GROUP);
+  moveit::planning_interface::MoveGroupInterface move_group(planningGroupName);
 
   namespace rvt = rviz_visual_tools;
   moveit_visual_tools::MoveItVisualTools visual_tools("odom");

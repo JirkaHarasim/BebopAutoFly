@@ -24,11 +24,11 @@
 
 <node name="pid_x_controller" pkg="pid" type="controller" output="screen" >
       <param name="node_name" value="x_control_pid" />
-      <param name="Kp" value="5.0" />
-      <param name="Ki" value="0.0" />
-      <param name="Kd" value="0.1" />
-      <param name="upper_limit" value="1" />
-      <param name="lower_limit" value="-1" />
+      <param name="Kp" value="2.0" />
+      <param name="Ki" value="0.35" />
+      <param name="Kd" value="0.75" />
+      <param name="upper_limit" value="0.5" />
+      <param name="lower_limit" value="-0.5" />
       <param name="topic_from_plant" value="/pid_manager/x_odom" />
       <param name="setpoint_topic" value="/pid_controller/x_desired" />
       <param name="pid_enable_topic" value="/pid_controller/pid_enable" />
@@ -40,11 +40,11 @@
 
 <node name="pid_y_controller" pkg="pid" type="controller" output="screen" >
       <param name="node_name" value="y_control_pid" />
-      <param name="Kp" value="5.0" />
-      <param name="Ki" value="0.0" />
-      <param name="Kd" value="0.1" />
-      <param name="upper_limit" value="1" />
-      <param name="lower_limit" value="-1" />
+      <param name="Kp" value="2.0" />
+      <param name="Ki" value="0.35" />
+      <param name="Kd" value="0.75" />
+      <param name="upper_limit" value="0.5" />
+      <param name="lower_limit" value="-0.5" />
       <param name="topic_from_plant" value="/pid_manager/y_odom" />
       <param name="setpoint_topic" value="/pid_controller/y_desired" />
       <param name="pid_enable_topic" value="/pid_controller/pid_enable" />
@@ -56,11 +56,11 @@
 
 <node name="pid_z_controller" pkg="pid" type="controller" output="screen" >
       <param name="node_name" value="z_control_pid" />
-      <param name="Kp" value="5.0" />
+      <param name="Kp" value="0.5" />
       <param name="Ki" value="0.0" />
-      <param name="Kd" value="0.1" />
-      <param name="upper_limit" value="1" />
-      <param name="lower_limit" value="-1" />
+      <param name="Kd" value="0.3" />
+      <param name="upper_limit" value="0.3" />
+      <param name="lower_limit" value="-0.3" />
       <param name="topic_from_plant" value="/pid_manager/z_odom" />
       <param name="setpoint_topic" value="/pid_controller/z_desired" />
       <param name="pid_enable_topic" value="/pid_controller/pid_enable" />
