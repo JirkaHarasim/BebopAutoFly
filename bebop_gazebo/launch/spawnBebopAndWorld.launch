@@ -5,8 +5,8 @@
 
 	<arg name="use_ground_truth_for_tf" default="true" />
   <include file="$(find hector_gazebo_worlds)/launch/start.launch">
-	<arg name="world" value="$(find hector_gazebo_worlds)/worlds/small_indoor_scenario.world"/> 
-<!--   <arg name="world" value="$(find quad_gazebo)/worlds/kitchen.world"/> -->
+<!--	<arg name="world" value="$(find hector_gazebo_worlds)/worlds/small_indoor_scenario.world"/> -->
+   <arg name="world" value="$(find quad_gazebo)/worlds/kitchen.world"/> 
   </include>
 
 <!--   <include file="$(find autonomous_quadrotor)/launch/MySpawn_quadrotor.launch" >

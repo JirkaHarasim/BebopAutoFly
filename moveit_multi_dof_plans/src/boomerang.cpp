@@ -89,7 +89,7 @@ int main(int argc, char **argv)
   ROS_INFO_NAMED("boomerang", "Reference frame: %s", move_group.getPlanningFrame().c_str());
 
   move_group.setPlanningTime(2);
-  move_group.setWorkspace(-10, -10, 0.7, 10, 10, 1.3);
+  move_group.setWorkspace(-10, -10, 0.7, 10, 10, 2.3);
 
   visual_tools.trigger();
   visual_tools.prompt("next step");
